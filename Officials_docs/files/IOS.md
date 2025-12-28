@@ -163,164 +163,231 @@
 
 ⠀
 Claude
-# iAngel_Capture_Flow_Rules_v1.docx
-### 5.70 Ko •159 lignes
+# iAngel_iOS_Integration_Ginette_Heureuse_v1.docx
+### 9.30 Ko •226 lignes
 ### Le formatage peut être différent de la source
-### RÈGLES DU FLUX DE CAPTURE
+### INTÉGRATION iOS
 
-### Spécification UX/UI Canonique --- v1.0
+### Comment rendre Ginette HEUREUSE
+
+### *tout en respectant les contraintes Apple*
 
 ###   ----------------- -----------------------------------------------------
-###   **Document ID**   IANGEL-UX-001
+###   **Document ID**   IANGEL-IOS-001
 
 ###   **Version**       1.0.0
 
 ###   **Date**          2025-12-17
 
-###   **Statut**        **APPROUVÉ --- RÈGLE CANONIQUE**
-
-###   **Auteur**        Fondateur iAngel
+###   **Référence**     Complète IANGEL-UX-001 (Règles du Flux de Capture)
 ###   ----------------- -----------------------------------------------------
 
-### 1\. PRINCIPE FONDATEUR
+### 1\. LA CONTRAINTE APPLE --- RÉALITÉ TECHNIQUE
 
-### Le différenciateur clé d\'iAngel n\'est pas la capture d\'écran
-### elle-même, mais ce qui se passe **ENTRE** la capture et l\'envoi à
-### l\'API. iAngel capture l\'**INTENTION** de l\'utilisateur avant
-### d\'analyser l\'image.
+### **⛔ VERDICT: Le bouton flottant système est IMPOSSIBLE sur iOS.**
 
-### *⚠️ ANTI-PATTERN : Envoyer une capture sans question = réponse générique
-### = utilisateur confus = désinstallation.*
+### **Pourquoi?** iOS utilise un modèle de sandboxing strict depuis iOS 1.0
+### (2007). Aucune application tierce ne peut dessiner d\'interface
+### au-dessus d\'autres applications. C\'est une restriction de
+### **SÉCURITÉ**, pas une limitation technique.
 
-### 2\. ÉLÉMENTS UI OBLIGATOIRES
+### **Exception unique:** AssistiveTouch (contrôlé exclusivement par Apple).
+### Les apps comme Be My Eyes, Aira, et Be My AI utilisent toutes des
+### méthodes alternatives.
 
-### L\'écran de capture post-déclenchement DOIT contenir exactement ces
-### éléments, dans cet ordre vertical:
+### ✓ BONNE NOUVELLE: Cette contrainte nous FORCE vers une meilleure
+### solution --- la voix, alignée avec notre vision \"ange gardien à portée
+### de voix\".
 
-###   -------------------------------------------------------------------------
-###   **Position**   **Élément**                 **Justification**
-###   -------------- --------------------------- ------------------------------
-###   Haut droite    **\[X\]** --- Icône         Universel, discret,
-###                  fermeture                   non-anxiogène. Pas de mot
-###                                              \"Annuler\".
-
-###   Centre haut    **Preview screenshot**      Confirmation visuelle de ce
-###                                              qui sera envoyé.
-
-###   Sous preview   **\"Préciser votre          Invitation ouverte, pas
-###                  question\"** + zone         obligation. Option texte ET
-###                  saisie + 🎤                 voix.
-
-###   Bas centre     **\"Envoyer\"** --- Bouton  Générique. Fonctionne nouvelle
-###                  principal                   requête ET flux continu.
-###   -------------------------------------------------------------------------
-
-### 3\. RÈGLES STRICTES (NON-NÉGOCIABLES)
-
-### 1\.  Le bouton principal affiche UNIQUEMENT \"Envoyer\".
-
-### > **INTERDIT:** \"Envoyer sans question\", \"Envoyer quand même\",
-### > \"Envoyer directement\". Ces formulations créent de l\'hésitation chez
-### > l\'utilisateur vulnérable.
-
-### 2\.  L\'annulation utilise UNIQUEMENT l\'icône \[X\].
-
-### > **INTERDIT:** Bouton \"Annuler\" explicite. Le mot \"Annuler\"
-### > augmente le taux d\'abandon et génère de l\'anxiété décisionnelle.
-
-### 3\.  La zone de saisie affiche \"Préciser votre question\" comme
-###     placeholder.
-
-### > **INTERDIT:** \"Votre question (obligatoire)\", \"Écrivez votre
-### > question\", \"Que voulez-vous savoir?\". L\'obligation perçue bloque
-### > les flux continus.
-
-### 4\.  Le bouton \"Envoyer\" est TOUJOURS actif (jamais grisé).
-
-### > **RAISON:** En flux continu (mid-conversation), l\'utilisateur n\'a
-### > pas de question à poser --- il envoie la suite demandée par iAngel.
-
-### 5\.  L\'interface guide vers l\'ACTION, pas vers l\'HÉSITATION.
-
-### > **PRINCIPE:** Réduire les options visibles aux deux actions
-### > principales (préciser, envoyer). Le X est présent mais discret.
-
-### 4\. SCÉNARIOS D\'USAGE
-
-### 4.1 Scénario A --- Nouvelle requête
-
-### Ginette voit un courriel suspect → Capture → Écrit \"C\'est-tu
-### sécuritaire?\" → Envoyer
-
-### **API reçoit:** { image: \..., question: \"C\'est-tu sécuritaire?\",
-### conversation_id: null }
-
-### 4.2 Scénario B --- Flux continu (mid-conversation)
-
-### iAngel: \"Allez dans Réglages \> Général et montrez-moi.\" → Ginette
-### navigue → Capture → *Envoyer directement (sans question)*
-
-### **API reçoit:** { image: \..., question: null, conversation_id:
-### \"abc123\" }
-
-### ✓ Le même bouton \"Envoyer\" fonctionne dans les DEUX scénarios sans
-### confusion.
-
-### 5\. COMPORTEMENT BACKEND REQUIS
-
-### Le backend DOIT interpréter le contexte selon cette matrice:
-
-###   ------------------------------------------------------------------------
-###   **Question**      **Conversation**   **Comportement API**
-###   ----------------- ------------------ -----------------------------------
-###   Présente          Nouvelle           Répondre précisément à la question
-###                                        posée
-
-###   Présente          En cours           Question additionnelle dans le
-###                                        contexte existant
-
-###   Absente           En cours           **Suite du flux --- continuer
-###                                        guidage**
-
-###   Absente           Nouvelle           *Fallback: description + \"Que
-###                                        voulez-vous savoir?\"*
-###   ------------------------------------------------------------------------
-
-### 6\. PRINCIPES UX SOUS-JACENTS
+### 2\. LES 3 ALTERNATIVES iOS VALIDÉES
 
 ###   -----------------------------------------------------------------------
-###   **Principe**            **Application iAngel**  **Nom formel**
-###   ----------------------- ----------------------- -----------------------
-###   X universel, pas        Réduction charge        *Hick\'s Law*
-###   \"Annuler\"             cognitive               
+###   **Méthode**       **Déclencheur**   **iOS min**       **Priorité**
+###   ----------------- ----------------- ----------------- -----------------
+###   **Siri +          \"Dis Siri,       iOS 14+           **★ PRIMAIRE**
+###   Shortcuts**       iAngel\"                            
 
-###   Options génériques      UI adaptative sans      *Progressive
-###   multi-contexte          surcharge               Disclosure*
+###   **Back Tap**      Double/Triple tap iOS 14+ (iPhone   SECONDAIRE
+###                     dos iPhone        8+)               
 
-###   Guider vers action, pas Réduction frictions     *Choice Architecture*
-###   hésitation              décisionnelles          
+###   **Share Sheet**   Bouton partage →  iOS 8+            AVANCÉ
+###                     iAngel                              
 ###   -----------------------------------------------------------------------
 
-### 7\. CHECKLIST DE VALIDATION
+### 3\. OPTION A: SIRI + SHORTCUTS (RECOMMANDÉE)
 
-### Avant toute PR touchant l\'écran de capture, vérifier:
+### **🎯 Alignement parfait avec la vision \"ange gardien à portée de
+### voix\"**
 
-### -   [ ] Le bouton principal affiche exactement \"Envoyer\" (pas
-###     d\'autres mots)
+### 3.1 Flux utilisateur complet
 
-### -   [ ] Aucun bouton \"Annuler\" visible --- seulement \[X\] en haut
-###     droite
+### **Scénario:** Ginette reçoit un courriel suspect de \"Bell Canada\".
+### Elle veut savoir si c\'est légitime.
 
-### -   [ ] Le placeholder est \"Préciser votre question\" (pas
-###     d\'obligation perçue)
+###   -------------------------------------------------------------------------
+###   **Étape**   **Action**              **Ginette**   **Validation bonheur**
+###   ----------- ----------------------- ------------- -----------------------
+###   **1**       Ginette dit: \"Dis      😊            Naturel! Comme appeler
+###               Siri, iAngel\"                        quelqu\'un.
 
-### -   [ ] Le bouton \"Envoyer\" n\'est JAMAIS grisé/désactivé
+###   **2**       Siri: \"Je prends une   😌            Confirmé vocalement =
+###               capture\...\"                         rassurant
 
-### -   [ ] L\'API accepte question=null avec conversation_id existant
+###   **3**       Écran capture + preview 😊            Elle VOIT ce qui sera
+###                                                     envoyé
 
-### -   [ ] Le flux continu (Scénario B) fonctionne sans friction
+###   **4**       iAngel vocalement:      😊            Question ouverte, pas
+###               \"Que voulez-vous                     obligation
+###               savoir?\"                             
+
+###   **5**       Ginette dit:            😊            Elle parle = confort
+###               \"C\'est-tu un vrai                   maximal
+###               courriel?\"                           
+
+###   **6**       Bouton \"Envoyer\" (ou  😊            Simple, un seul choix
+###               vocal)                                clair
+
+###   **7**       iAngel répond           😄            Réponse PRÉCISE à SA
+###               vocalement                            question
+###   -------------------------------------------------------------------------
+
+### **VERDICT GINETTE: 7/7 étapes heureuses.** Zéro friction, zéro jargon,
+### zéro bouton à chercher. Elle parle, iAngel écoute.
+
+### 3.2 Configuration requise (une seule fois)
+
+###   -----------------------------------------------------------------------
+###   **Étape**   **Action onboarding**               **Qui fait?**
+###   ----------- ----------------------------------- -----------------------
+###   1           Télécharger iAngel depuis l\'App    Ginette (ou proche
+###               Store                               aidant)
+
+###   2           Ouvrir app → onboarding vocal guidé iAngel guide vocalement
+
+###   3           Scanner QR code → installe le       **AUTOMATIQUE**
+###               Shortcut automatiquement            
+
+###   4           iAngel: \"Dites \'Dis Siri,         Ginette teste
+###               iAngel\' pour essayer\"             immédiatement
+
+###   5           iAngel: \"Bravo! Je suis maintenant **CONFIANCE ÉTABLIE ✓**
+###               toujours là pour vous.\"            
+###   -----------------------------------------------------------------------
+
+### **Durée totale:** \< 3 minutes. Aucune navigation dans Réglages iOS. Le
+### QR code fait tout.
+
+### 4\. OPTION B: BACK TAP (SECONDAIRE)
+
+### **Pour qui?** Ginette qui préfère taper plutôt que parler (environnement
+### bruyant, discrétion souhaitée).
+
+### 4.1 Flux utilisateur complet
+
+###   -------------------------------------------------------------------------
+###   **Étape**   **Action**              **Ginette**   **Validation bonheur**
+###   ----------- ----------------------- ------------- -----------------------
+###   **1**       Ginette tape 2x sur le  🤔            Geste à apprendre mais
+###               dos du iPhone                         simple
+
+###   **2**       Vibration + son de      😊            Feedback immédiat =
+###               confirmation                          rassurant
+
+###   **3**       Écran capture + preview 😊            Identique à Option A
+
+###   **4**       Zone \"Préciser votre   😊            Elle peut taper OU
+###               question\" + 🎤                       parler
+
+###   **5**       Bouton \"Envoyer\"      😊            Simple et clair
+
+###   **6**       iAngel répond (écrit +  😄            Double canal =
+###               vocal)                                accessibilité
+###   -------------------------------------------------------------------------
+
+### **VERDICT GINETTE: 6/7 étapes OK.** Étape 1 requiert apprentissage
+### (*\"Ah c\'est comme cogner à une porte!\"*). Après 2-3 essais → réflexe.
+
+### 4.2 Configuration (si activée)
+
+### **Risque identifié:** Naviguer dans Réglages \> Accessibilité \> Toucher
+### \> Toucher le dos est complexe pour Ginette.
+
+### ✓ SOLUTION: iAngel propose d\'ouvrir automatiquement le bon écran
+### Réglages via URL scheme (prefs:root=ACCESSIBILITY). Ginette n\'a qu\'à
+### appuyer sur \"Activer\".
+
+### 5\. OPTION C: SHARE SHEET (AVANCÉ)
+
+### **Pour qui?** Utilisateurs plus à l\'aise avec iOS. Non recommandé comme
+### méthode principale pour Ginette.
+
+###   -------------------------------------------------------------------------
+###   **Étape**   **Action**              **Ginette**   **Validation bonheur**
+###   ----------- ----------------------- ------------- -----------------------
+###   **1**       Capture manuelle        😟            Coordination 2 boutons
+###               (Volume + Power)                      = difficile
+
+###   **2**       Trouver bouton partage  😕            Où est-il? En bas? En
+###               ↗️                                    haut?
+
+###   **3**       Chercher \"iAngel\"     😕            Liste longue, scroll
+###               dans la liste                         nécessaire
+
+###   **4**       Écran iAngel s\'ouvre   😊            OK à partir d\'ici
+
+###   **5**       Suite identique\...     😊            Flux standard
+###   -------------------------------------------------------------------------
+
+### **VERDICT GINETTE: 3/5 étapes problématiques.** Trop de friction au
+### départ. Réservé aux \"enfants de Ginette\" qui l\'aident.
+
+### 6\. RECOMMANDATION STRATÉGIQUE
+
+### **DÉCISION: Triple-canal avec voix en priorité**
+
+###   -----------------------------------------------------------------------
+###   **Canal**         **Quand**               **Score Ginette**
+###   ----------------- ----------------------- -----------------------------
+###   **★ Siri          90% des usages          **⭐⭐⭐⭐⭐ 100% heureuse**
+###   (PRIMAIRE)**      quotidiens              
+
+###   **Back Tap        Environnement bruyant,  ⭐⭐⭐⭐☆ 85% (apprentissage)
+###   (BACKUP)**        discrétion              
+
+###   **Share Sheet     Proche aidant,          ⭐⭐⭐☆☆ 60% (friction)
+###   (EXPERT)**        utilisateur avancé      
+###   -----------------------------------------------------------------------
+
+### 7\. ✓ VALIDATION FINALE: GINETTE EST-ELLE HEUREUSE?
+
+### 7.1 Critères de bonheur Ginette
+
+###   -------------------------------------------------------------------------
+###   **Critère**                         **Avant iAngel**    **Avec iAngel**
+###   ----------------------------------- ------------------- -----------------
+###   Doit-elle chercher un bouton à      Oui (anxiété)       **NON --- Elle
+###   l\'écran?                                               parle**
+
+###   Doit-elle naviguer dans des menus?  Oui (confusion)     **NON ---
+###                                                           Direct**
+
+###   Doit-elle lire du texte technique?  Oui                 **NON --- Vocal
+###                                       (incompréhension)   humain**
+
+###   Doit-elle appeler sa fille/magasin? Oui (dépendance)    **NON ---
+###                                                           Autonomie**
+
+###   Obtient-elle une réponse à SA       Non (réponse        **OUI ---
+###   question?                           générique)          Précise**
+###   -------------------------------------------------------------------------
+
+### **🎉 VERDICT FINAL: GINETTE EST HEUREUSE.**
+
+### Elle dit \"Dis Siri, iAngel\" → Elle pose sa question → Elle a sa
+### réponse.
+
+### *Pas de bouton à chercher. Pas de jargon. Pas de stress.*
+
+### *Elle garde son autonomie. Sa fille peut dormir tranquille.*
 
 ### *--- Fin du document ---*
-
-### Ce document fait autorité. Toute déviation requiert approbation du
-### fondateur.

@@ -163,164 +163,350 @@
 
 ⠀
 Claude
-# iAngel_Capture_Flow_Rules_v1.docx
-### 5.70 Ko •159 lignes
+# iAngel_Android_Floating_Button_Native_v1.docx
+### 12.54 Ko •345 lignes
 ### Le formatage peut être différent de la source
-### RÈGLES DU FLUX DE CAPTURE
+### ANDROID --- BOUTON FLOTTANT
 
-### Spécification UX/UI Canonique --- v1.0
+### Implémentation NATIVE sans contournement
+
+### *Google Play Store Compliant*
 
 ###   ----------------- -----------------------------------------------------
-###   **Document ID**   IANGEL-UX-001
+###   **Document ID**   IANGEL-ANDROID-001
 
 ###   **Version**       1.0.0
 
 ###   **Date**          2025-12-17
 
-###   **Statut**        **APPROUVÉ --- RÈGLE CANONIQUE**
+###   **Référence**     Implémente IANGEL-UX-001 (Règles du Flux de Capture)
 
-###   **Auteur**        Fondateur iAngel
+###   **API Android     API 23 (Android 6.0 Marshmallow) --- 97% des
+###   min**             appareils actifs
 ###   ----------------- -----------------------------------------------------
 
-### 1\. PRINCIPE FONDATEUR
+### 1\. POURQUOI C\'EST NATIF (PAS UN HACK)
 
-### Le différenciateur clé d\'iAngel n\'est pas la capture d\'écran
-### elle-même, mais ce qui se passe **ENTRE** la capture et l\'envoi à
-### l\'API. iAngel capture l\'**INTENTION** de l\'utilisateur avant
-### d\'analyser l\'image.
+### **✓ Android permet OFFICIELLEMENT les overlays système depuis Android
+### 6.0 (2015)**
 
-### *⚠️ ANTI-PATTERN : Envoyer une capture sans question = réponse générique
-### = utilisateur confus = désinstallation.*
+### **Permission officielle:** SYSTEM_ALERT_WINDOW (\"Display over other
+### apps\"). C\'est une **fonctionnalité documentée** dans le SDK Android,
+### utilisée par des apps majeures.
 
-### 2\. ÉLÉMENTS UI OBLIGATOIRES
-
-### L\'écran de capture post-déclenchement DOIT contenir exactement ces
-### éléments, dans cet ordre vertical:
-
-###   -------------------------------------------------------------------------
-###   **Position**   **Élément**                 **Justification**
-###   -------------- --------------------------- ------------------------------
-###   Haut droite    **\[X\]** --- Icône         Universel, discret,
-###                  fermeture                   non-anxiogène. Pas de mot
-###                                              \"Annuler\".
-
-###   Centre haut    **Preview screenshot**      Confirmation visuelle de ce
-###                                              qui sera envoyé.
-
-###   Sous preview   **\"Préciser votre          Invitation ouverte, pas
-###                  question\"** + zone         obligation. Option texte ET
-###                  saisie + 🎤                 voix.
-
-###   Bas centre     **\"Envoyer\"** --- Bouton  Générique. Fonctionne nouvelle
-###                  principal                   requête ET flux continu.
-###   -------------------------------------------------------------------------
-
-### 3\. RÈGLES STRICTES (NON-NÉGOCIABLES)
-
-### 1\.  Le bouton principal affiche UNIQUEMENT \"Envoyer\".
-
-### > **INTERDIT:** \"Envoyer sans question\", \"Envoyer quand même\",
-### > \"Envoyer directement\". Ces formulations créent de l\'hésitation chez
-### > l\'utilisateur vulnérable.
-
-### 2\.  L\'annulation utilise UNIQUEMENT l\'icône \[X\].
-
-### > **INTERDIT:** Bouton \"Annuler\" explicite. Le mot \"Annuler\"
-### > augmente le taux d\'abandon et génère de l\'anxiété décisionnelle.
-
-### 3\.  La zone de saisie affiche \"Préciser votre question\" comme
-###     placeholder.
-
-### > **INTERDIT:** \"Votre question (obligatoire)\", \"Écrivez votre
-### > question\", \"Que voulez-vous savoir?\". L\'obligation perçue bloque
-### > les flux continus.
-
-### 4\.  Le bouton \"Envoyer\" est TOUJOURS actif (jamais grisé).
-
-### > **RAISON:** En flux continu (mid-conversation), l\'utilisateur n\'a
-### > pas de question à poser --- il envoie la suite demandée par iAngel.
-
-### 5\.  L\'interface guide vers l\'ACTION, pas vers l\'HÉSITATION.
-
-### > **PRINCIPE:** Réduire les options visibles aux deux actions
-### > principales (préciser, envoyer). Le X est présent mais discret.
-
-### 4\. SCÉNARIOS D\'USAGE
-
-### 4.1 Scénario A --- Nouvelle requête
-
-### Ginette voit un courriel suspect → Capture → Écrit \"C\'est-tu
-### sécuritaire?\" → Envoyer
-
-### **API reçoit:** { image: \..., question: \"C\'est-tu sécuritaire?\",
-### conversation_id: null }
-
-### 4.2 Scénario B --- Flux continu (mid-conversation)
-
-### iAngel: \"Allez dans Réglages \> Général et montrez-moi.\" → Ginette
-### navigue → Capture → *Envoyer directement (sans question)*
-
-### **API reçoit:** { image: \..., question: null, conversation_id:
-### \"abc123\" }
-
-### ✓ Le même bouton \"Envoyer\" fonctionne dans les DEUX scénarios sans
-### confusion.
-
-### 5\. COMPORTEMENT BACKEND REQUIS
-
-### Le backend DOIT interpréter le contexte selon cette matrice:
-
-###   ------------------------------------------------------------------------
-###   **Question**      **Conversation**   **Comportement API**
-###   ----------------- ------------------ -----------------------------------
-###   Présente          Nouvelle           Répondre précisément à la question
-###                                        posée
-
-###   Présente          En cours           Question additionnelle dans le
-###                                        contexte existant
-
-###   Absente           En cours           **Suite du flux --- continuer
-###                                        guidage**
-
-###   Absente           Nouvelle           *Fallback: description + \"Que
-###                                        voulez-vous savoir?\"*
-###   ------------------------------------------------------------------------
-
-### 6\. PRINCIPES UX SOUS-JACENTS
+### 1.1 Apps populaires utilisant cette permission
 
 ###   -----------------------------------------------------------------------
-###   **Principe**            **Application iAngel**  **Nom formel**
+###   **Application**         **Usage overlay**       **Téléchargements**
 ###   ----------------------- ----------------------- -----------------------
-###   X universel, pas        Réduction charge        *Hick\'s Law*
-###   \"Annuler\"             cognitive               
+###   Facebook Messenger      Chat Heads (bulles      5+ milliards
+###                           flottantes)             
 
-###   Options génériques      UI adaptative sans      *Progressive
-###   multi-contexte          surcharge               Disclosure*
+###   Samsung Smart Select    Panneau capture         Préinstallé Samsung
+###                           d\'écran                
 
-###   Guider vers action, pas Réduction frictions     *Choice Architecture*
-###   hésitation              décisionnelles          
+###   Screen Recorder         Bouton flottant         Natif Android 11+
+###   (Google)                enregistrement          
+
+###   Clipboard Manager       Historique              100+ millions
+###                           presse-papier flottant  
+
+###   **iAngel**              **Bouton d\'assistance  **À venir 🚀**
+###                           contextuelle**          
 ###   -----------------------------------------------------------------------
 
-### 7\. CHECKLIST DE VALIDATION
+### **CONCLUSION:** Le bouton flottant est un pattern Android **établi
+### depuis 10 ans**. Google l\'utilise dans ses propres apps. Aucun risque
+### de rejet Play Store.
 
-### Avant toute PR touchant l\'écran de capture, vérifier:
+### 2\. LA PERMISSION --- EXPLICATION POUR GINETTE
 
-### -   [ ] Le bouton principal affiche exactement \"Envoyer\" (pas
-###     d\'autres mots)
+### **Nom technique:** SYSTEM_ALERT_WINDOW
 
-### -   [ ] Aucun bouton \"Annuler\" visible --- seulement \[X\] en haut
-###     droite
+### **Ce que voit Ginette:** \"Autoriser l\'affichage par-dessus d\'autres
+### applications\"
 
-### -   [ ] Le placeholder est \"Préciser votre question\" (pas
-###     d\'obligation perçue)
+### 2.1 Comment iAngel explique cette permission
 
-### -   [ ] Le bouton \"Envoyer\" n\'est JAMAIS grisé/désactivé
+### ***🎙️ Voix iAngel (onboarding):***
 
-### -   [ ] L\'API accepte question=null avec conversation_id existant
+### *\"Pour vous aider à tout moment, j\'ai besoin de placer un petit bouton
+### sur votre écran. Ce bouton restera visible même quand vous utilisez
+### d\'autres applications --- comme votre courriel ou votre banque. Quand
+### vous aurez besoin d\'aide, vous n\'aurez qu\'à appuyer dessus. C\'est
+### comme avoir une sonnette d\'aide toujours à portée de main.\"*
 
-### -   [ ] Le flux continu (Scénario B) fonctionne sans friction
+### 2.2 Processus d\'activation (une seule fois)
+
+###   -----------------------------------------------------------------------
+###   **Étape**   **Ce qui se passe**                 **Ginette voit/fait**
+###   ----------- ----------------------------------- -----------------------
+###   1           iAngel explique vocalement pourquoi 😊 Elle comprend
+###                                                   l\'utilité
+
+###   2           Bouton \"Activer le bouton          😊 Un seul bouton clair
+###               d\'aide\" dans l\'app               
+
+###   3           Android ouvre l\'écran de           🤔 Écran système
+###               permission système                  (attendu)
+
+###   4           iAngel: \"Activez le bouton à côté  😊 Guidée vocalement
+###               de mon nom\"                        
+
+###   5           Ginette active le toggle → retour   😊 Facile, un geste
+###               auto dans iAngel                    
+
+###   6           iAngel: \"Parfait! Le bouton        **😄 CONFIANCE
+###               apparaît maintenant.\"              ÉTABLIE**
+###   -----------------------------------------------------------------------
+
+### **Durée totale:** \< 30 secondes. Configuration unique, jamais répétée.
+
+### 3\. FLUX UTILISATEUR --- BOUTON FLOTTANT
+
+### **Scénario:** Ginette reçoit un SMS suspect demandant de \"mettre à jour
+### ses informations bancaires\". Elle est dans l\'app SMS.
+
+### 3.1 Validation Ginette --- Étape par étape
+
+###   -------------------------------------------------------------------------
+###   **Étape**   **Action**              **Ginette**   **Validation bonheur**
+###   ----------- ----------------------- ------------- -----------------------
+###   **1**       Ginette voit le bouton  😊            Toujours visible,
+###               iAngel (coin écran)                   rassurant
+
+###   **2**       Elle appuie sur le      😊            Un seul tap, naturel
+###               bouton flottant                       
+
+###   **3**       Capture automatique +   😊            Elle VOIT ce qui sera
+###               preview                               analysé
+
+###   **4**       iAngel vocalement:      😊            Question ouverte,
+###               \"Que voulez-vous                     guidée
+###               savoir?\"                             
+
+###   **5**       Zone \"Préciser votre   😊            Elle peut taper OU
+###               question\" + 🎤                       parler
+
+###   **6**       Ginette dit:            😊            Voix = confort maximal
+###               \"C\'est-tu une                       
+###               arnaque?\"                            
+
+###   **7**       Bouton \"Envoyer\"      😊            Simple, générique,
+###                                                     clair
+
+###   **8**       iAngel répond           😄            Réponse PRÉCISE à SA
+###               vocalement + texte                    question
+###   -------------------------------------------------------------------------
+
+### **VERDICT GINETTE: 8/8 étapes heureuses.** Le bouton est là quand elle
+### en a besoin, invisible mentalement quand elle n\'en a pas besoin.
+
+### 4\. FLUX CONTINU --- ASSISTANCE MULTI-ÉTAPES
+
+### **Scénario:** iAngel guide Ginette pour mettre à jour son téléphone.
+### Plusieurs captures seront nécessaires.
+
+###   -----------------------------------------------------------------------
+###   **Tour**    **iAngel dit**                **Ginette fait**
+###   ----------- ----------------------------- -----------------------------
+###   1           \"Allez dans Paramètres, puis Ouvre Paramètres → \[Bouton
+###               appuyez sur mon bouton.\"     flottant\]
+
+###   2           \"Parfait! Cherchez \'Mise à  Navigue → \[Bouton flottant\]
+###               jour\' et montrez-moi.\"      → \"Envoyer\"
+
+###   3           \"Je vois une mise à jour     Appuie Télécharger →
+###               disponible. Appuyez sur       \[Bouton\] → \"Envoyer\"
+###               Télécharger, puis             
+###               montrez-moi.\"                
+
+###   4           **\"Le téléchargement est en  **😄 Mission accomplie ---
+###               cours. Votre téléphone sera à AUTONOME**
+###               jour dans quelques minutes.   
+###               Bravo Ginette!\"**            
+###   -----------------------------------------------------------------------
+
+### ✓ Le bouton \"Envoyer\" fonctionne IDENTIQUEMENT pour nouvelle requête
+### ET flux continu (cf. IANGEL-UX-001)
+
+### 5\. PIPELINE TECHNIQUE --- ARCHITECTURE
+
+### 5.1 Composants Android
+
+###   -------------------------------------------------------------------------------------
+###   **\#**   **Composant**               **Rôle**                   **Technologie**
+###   -------- --------------------------- -------------------------- ---------------------
+###   **1**    **FloatingButtonService**   Service qui maintient le   Foreground Service
+###                                        bouton visible             
+
+###   **2**    **WindowManager**           Affiche le bouton          SYSTEM_ALERT_WINDOW
+###                                        par-dessus les apps        
+
+###   **3**    **MediaProjection**         Capture l\'écran (avec     API native Android 5+
+###                                        permission)                
+
+###   **4**    **CaptureOverlay**          Affiche preview + zone     Jetpack Compose
+###                                        question                   
+
+###   **5**    **SpeechRecognizer**        Transcription voix → texte API native / Whisper
+
+###   **6**    **iAngel API Client**       Envoie image + question au Retrofit + OkHttp
+###                                        backend                    
+
+###   **7**    **TextToSpeech**            Lit la réponse à voix      TTS natif Android
+###                                        haute                      
+###   -------------------------------------------------------------------------------------
+
+### 5.2 Permissions requises
+
+###   ------------------------------------------------------------------------
+###   **Permission**             **Usage iAngel**       **Type**
+###   -------------------------- ---------------------- ----------------------
+###   **SYSTEM_ALERT_WINDOW**    Bouton flottant        Spéciale (Settings)
+
+###   **FOREGROUND_SERVICE**     Garder le service      Normale (Manifest)
+###                              actif                  
+
+###   **RECORD_AUDIO**           Reconnaissance vocale  Runtime (dialogue)
+
+###   **INTERNET**               Appels API             Normale (Manifest)
+###   ------------------------------------------------------------------------
+
+### 5.3 Pseudo-code du flux
+
+### **// FloatingButtonService.kt**
+
+### fun onFloatingButtonClicked() {
+
+### // 1. Capturer l\'écran (0\$ --- local)
+
+### val screenshot = mediaProjection.captureScreen()
+
+### saveLocally(screenshot) // Pas d\'API call encore
+
+### // 2. Afficher overlay avec preview
+
+### showCaptureOverlay(
+
+### preview = screenshot,
+
+### voicePrompt = \"Que voulez-vous savoir?\"
+
+### )
+
+### // 3. Attendre input utilisateur
+
+### val userAction = awaitUserInput() // text, voice, send, cancel
+
+### when (userAction) {
+
+### is Cancel -\> { deleteScreenshot(); return } // 0\$ dépensé
+
+### is Send -\> {
+
+### // 4. Appel API avec contexte
+
+### val response = iAngelApi.analyze(
+
+### image = screenshot,
+
+### question = userAction.question, // peut être null
+
+### conversationId = currentConversation?.id
+
+### )
+
+### // 5. Répondre vocalement + texte
+
+### textToSpeech.speak(response.text)
+
+### showResponseOverlay(response)
+
+### }
+
+### }
+
+### }
+
+### 6\. DESIGN DU BOUTON FLOTTANT
+
+### 6.1 Spécifications visuelles
+
+###   -----------------------------------------------------------------------
+###   **Propriété**           **Valeur**
+###   ----------------------- -----------------------------------------------
+###   **Forme**               Cercle (FAB standard Material Design)
+
+###   **Taille**              56dp × 56dp (taille tactile minimale
+###                           recommandée: 48dp)
+
+###   **Couleur fond**        #1E3A5F (iAngel Blue) --- contraste élevé sur
+###                           tout fond
+
+###   **Icône**               Aile d\'ange stylisée (blanc sur bleu) ---
+###                           identité iAngel
+
+###   **Élévation**           6dp (ombre portée visible)
+
+###   **Position par défaut** Coin inférieur droit, marge 16dp du bord
+
+###   **Déplaçable**          **OUI --- Ginette peut le glisser où elle
+###                           veut**
+
+###   **Animation tap**       Ripple effect + légère pulsation lors de la
+###                           capture
+###   -----------------------------------------------------------------------
+
+### 6.2 Comportement intelligent
+
+### -   **Auto-repositionnement:** Si une app utilise le coin inférieur
+###     droit (clavier, FAB), le bouton se déplace automatiquement
+
+### -   **Snap to edge:** Le bouton colle toujours au bord de l\'écran après
+###     déplacement
+
+### -   **Mémoire position:** La position choisie par Ginette est
+###     sauvegardée entre les sessions
+
+### -   **Masquage temporaire:** Long-press = masquer 5 minutes (pour
+###     regarder une vidéo plein écran)
+
+### 7\. ✓ VALIDATION FINALE: GINETTE EST-ELLE HEUREUSE?
+
+### 7.1 Comparatif iOS vs Android pour Ginette
+
+###   -----------------------------------------------------------------------
+###   **Critère**             **iOS (Siri)**          **Android (Bouton)**
+###   ----------------------- ----------------------- -----------------------
+###   Déclenchement           \"Dis Siri, iAngel\"    **Tap sur bouton
+###                                                   visible**
+
+###   Visibilité              Invisible (mémoriser    **Toujours visible =
+###                           commande)               rassurant**
+
+###   Environnement bruyant   Difficile (Back Tap     **Aucun problème**
+###                           requis)                 
+
+###   Configuration           QR code Shortcut        Toggle dans Settings
+
+###   **Score Ginette**       **⭐⭐⭐⭐⭐**          **⭐⭐⭐⭐⭐+**
+###   -----------------------------------------------------------------------
+
+### **AVANTAGE ANDROID:** Le bouton flottant est **VISIBLE**. Ginette n\'a
+### pas besoin de mémoriser une commande vocale. Elle voit le bouton → elle
+### appuie.
+
+### **ÉQUIVALENCE:** Les deux plateformes atteignent l\'objectif \"Ginette
+### heureuse\" par des chemins différents adaptés à leurs contraintes.
+
+### **🎉 VERDICT FINAL: GINETTE ANDROID EST HEUREUSE.**
+
+### Elle voit le bouton → Elle appuie → Elle pose sa question → Elle a sa
+### réponse.
+
+### *Le bouton est là. Toujours. Comme un ange gardien.*
+
+### *Elle garde son autonomie. Sa fille peut dormir tranquille.*
 
 ### *--- Fin du document ---*
-
-### Ce document fait autorité. Toute déviation requiert approbation du
-### fondateur.
