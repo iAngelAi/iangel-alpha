@@ -22,6 +22,7 @@ class ClaudeClient(LLMProvider):
         
         self.client = AsyncAnthropic(api_key=settings.anthropic_api_key)
         self.model = settings.anthropic_model
+        print(f"🧠 [ClaudeClient] Modèle configuré: {self.model}")
 
     @retry(
         stop=stop_after_attempt(3),
