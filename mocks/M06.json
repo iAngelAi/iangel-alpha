@@ -1,0 +1,13 @@
+{
+    "mock_id": "M06",
+    "scenario": "forgot_password_facebook",
+    "description": "Ginette est déconnectée de Facebook et ne connaît pas son mot de passe",
+    "expected_response": "Pas de panique. Si vous ne connaissez pas le mot de passe, nous allons demander à Facebook de nous aider à en créer un nouveau.",
+    "spoken_response": "Ça arrive à tout le monde d'oublier, ne t'en fais pas. On va simplement dire à Facebook que tu as un trou de mémoire, et ils vont nous aider.",
+    "steps": [
+        "Sous le bouton bleu 'Se connecter', cherchez le petit texte 'Mot de passe oublié ?'",
+        "Touchez ce texte",
+        "Entrez votre adresse courriel ou votre numéro de téléphone",
+        "Attendez de recevoir le code par SMS"
+    ]
+}

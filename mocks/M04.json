@@ -1,0 +1,13 @@
+{
+    "mock_id": "M04",
+    "scenario": "fake_virus_alert",
+    "description": "Un site web clignote en rouge disant VOTRE IPHONE EST INFECTÉ",
+    "expected_response": "Ceci est une fausse alerte (publicité) conçue pour vous faire peur. Votre téléphone n'a rien. Ne touchez à aucun bouton sur la page.",
+    "spoken_response": "Respire Ginette, tout va bien. Ce n'est pas un vrai virus, c'est juste une vilaine publicité qui veut te faire peur. On va fermer ça tout de suite.",
+    "steps": [
+        "Ne touchez pas au bouton 'Scanner' ou 'Nettoyer'",
+        "Regardez tout en bas à droite de l'écran",
+        "Touchez l'icône des deux petits carrés (les onglets)",
+        "Touchez le petit X sur la fenêtre qui fait peur"
+    ]
+}

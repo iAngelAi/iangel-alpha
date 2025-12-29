@@ -1,0 +1,15 @@
+{
+    "mock_id": "M01",
+    "scenario": "wifi_connection",
+    "description": "Ginette veut se connecter au WiFi de sa maison",
+    "expected_response": "Je vois l'icône WiFi en haut de votre écran. Elle montre que vous n'êtes pas encore connecté.",
+    "spoken_response": "Je vois que votre WiFi n'est pas branché. On va régler ça ensemble.",
+    "steps": [
+        "Regardez le coin supérieur droit de votre écran",
+        "Touchez l'icône avec les petites vagues (comme des ondes)",
+        "Dans la liste qui apparaît, cherchez le nom de votre réseau WiFi",
+        "Touchez le nom de votre réseau",
+        "Entrez votre mot de passe WiFi",
+        "Appuyez sur le bouton 'Connecter'"
+    ]
+}

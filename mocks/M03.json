@@ -1,0 +1,13 @@
+{
+    "mock_id": "M03",
+    "scenario": "ios_update",
+    "description": "Une popup demande d'installer iOS 18. Ginette a peur de tout casser.",
+    "expected_response": "C'est une mise à jour de sécurité officielle d'Apple. C'est comme une mise au point pour votre voiture, c'est bon pour votre téléphone.",
+    "spoken_response": "C'est tout à fait normal Ginette. C'est Apple qui veut sécuriser ton téléphone. On peut le faire ce soir pendant que tu dors, ça ne te dérangera pas.",
+    "steps": [
+        "Lisez le titre de la fenêtre : 'Mise à jour logicielle'",
+        "Repérez l'option 'Installer ce soir' ou 'Plus tard'",
+        "Touchez 'Installer ce soir'",
+        "Branchez votre téléphone sur le chargeur avant d'aller au lit"
+    ]
+}

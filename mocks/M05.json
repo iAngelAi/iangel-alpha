@@ -1,0 +1,12 @@
+{
+    "mock_id": "M05",
+    "scenario": "grandchild_photo",
+    "description": "Ginette a reçu une photo de son petit-fils par SMS",
+    "expected_response": "C'est une magnifique photo ! Vous voulez probablement la garder dans votre album pour la revoir plus tard.",
+    "spoken_response": "Oh, quelle belle photo ! Il a grandi ! Tu veux sûrement la garder dans tes souvenirs ?",
+    "steps": [
+        "Touchez la photo une fois pour l'agrandir",
+        "Cherchez le carré avec une flèche vers le haut (le bouton partager)",
+        "Touchez 'Enregistrer l'image'"
+    ]
+}

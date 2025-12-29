@@ -1,0 +1,11 @@
+{
+    "mock_id": "M07",
+    "scenario": "backend_glitch",
+    "description": "Simulation d'une incompréhension ou d'une erreur interne pour tester l'UI d'erreur",
+    "expected_response": "Je suis désolé, j'ai eu un petit moment d'inattention. Pourriez-vous reprendre la photo ?",
+    "spoken_response": "Oups, mes lunettes étaient sales ! Je n'ai pas bien vu l'image. Est-ce que tu peux reprendre la photo pour moi ?",
+    "steps": [
+        "Reprenez la capture d'écran",
+        "Assurez-vous que le texte est bien lisible"
+    ]
+}
