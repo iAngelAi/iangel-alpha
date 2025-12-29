@@ -7,19 +7,38 @@ Pour S2: Remplacer par Redis ou PostgreSQL.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Literal
 from dataclasses import dataclass, field
 from datetime import datetime
+from pydantic import BaseModel
 
 from .reasoning import ReasoningEngine
+
+class DialogueMessage(BaseModel):
+    """Représente un échange unique dans la conversation."""
+    role: Literal["user", "assistant", "system"]
+    content: str
+    timestamp: datetime = field(default_factory=datetime.now)
+    # Pour le vocal ou des métadonnées techniques
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class ConversationState:
     """État complet d'une conversation."""
     conversation_id: str
     engine: ReasoningEngine
+    history: list[DialogueMessage] = field(default_factory=list)
     last_updated: datetime = field(default_factory=datetime.now)
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    def add_message(self, role: Literal["user", "assistant", "system"], content: str, **metadata: Any) -> None:
+        """Ajoute un message à l'historique."""
+        self.history.append(DialogueMessage(
+            role=role,
+            content=content,
+            metadata=metadata
+        ))
+        self.last_updated = datetime.now()
 
 
 class BaseStateStore(ABC):

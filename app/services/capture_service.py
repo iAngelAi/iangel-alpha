@@ -12,7 +12,8 @@ from ..config import get_settings
 from ..core.state import InMemoryStateStore, ConversationState, ReasoningEngine, BaseStateStore
 from ..core.llm.claude import ClaudeClient
 from ..core.llm.base import LLMProvider
-from ..core.llm.prompts import SYSTEM_PROMPT_S1
+from ..core.llm.prompts import SYSTEM_PROMPT_S1, SCHEMA_DEFINITION
+from ..core.llm.utils import get_temporal_context, format_history_for_claude
 from ..sandbox.mock_loader import MockLoader
 from pathlib import Path
 
@@ -68,11 +69,24 @@ class CaptureService:
         # 3. Analyse (LLM S1 - Structured Output)
         user_msg = request.question or "Que dois-je faire ?"
         
+        # Ajouter l'entrée utilisateur à l'historique
+        state.add_message("user", user_msg, modality=request.input_modality)
+        
+        # Préparer le prompt dynamique (Contextuel & Temporel)
+        temporal_context = get_temporal_context()
+        history_xml = format_history_for_claude(state.history)
+        
+        final_system_prompt = SYSTEM_PROMPT_S1.format(
+            temporal_context=temporal_context,
+            history=history_xml,
+            json_schema=str(SCHEMA_DEFINITION)
+        )
+        
         # Pour supporter l'injection de dépendance (MockLLMProvider n'a pas generate_decision),
         # on fait un check runtime. En prod, c'est ClaudeClient.
         if hasattr(self.llm_client, "generate_decision"):
             decision = await self.llm_client.generate_decision( # type: ignore
-                system_prompt=SYSTEM_PROMPT_S1,
+                system_prompt=final_system_prompt,
                 user_message=user_msg,
                 image_data=request.image_data
             )
@@ -80,8 +94,17 @@ class CaptureService:
             instruction = engine.process_decision(decision)
             spoken = decision.spoken_instruction
             confidence = 0.9 # Claude est confiant
+            
+            # Ajouter la réponse IA à l'historique
+            state.add_message(
+                "assistant", 
+                instruction, 
+                spoken=spoken, 
+                emotion=decision.emotional_context
+            )
+            
         else:
-            # Fallback S0 (Texte simple)
+            # Fallback S0 (Texte simple) - Déprécié mais gardé pour compatibilité tests
             llm_response = await self.llm_client.generate(
                 system_prompt="Tu es iAngel.",
                 user_message=user_msg,
@@ -90,6 +113,7 @@ class CaptureService:
             instruction = engine.analyze(llm_response.content)
             spoken = instruction
             confidence = 0.5
+            state.add_message("assistant", instruction)
 
         # 5. Sauvegarde
         await self.state_store.save_state(conversation_id, state)
