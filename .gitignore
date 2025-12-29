@@ -104,3 +104,4 @@ mocks/*.jpeg
 
 # === Sentry ===
 .sentryclirc
+# Test commit sans signature
