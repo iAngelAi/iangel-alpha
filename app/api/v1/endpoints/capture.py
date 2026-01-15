@@ -10,11 +10,11 @@ TODO Phase S0-03: Implémenter l'endpoint complet avec :
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.schemas import CaptureRequest, CaptureResponse
-from app.services.capture_service import CaptureService
-from app.config import get_settings, Settings
+from app.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.state import PostgresStateStore
+from app.models.schemas import CaptureRequest, CaptureResponse
+from app.services.capture_service import CaptureService
 
 router = APIRouter()
 

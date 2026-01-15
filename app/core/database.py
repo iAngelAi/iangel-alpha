@@ -52,7 +52,7 @@ class AsyncDatabase:
             # Fallback automatique si non initialisé (sécurité Ginette)
             from app.config import get_settings
             self.initialize(get_settings())
-        
+
         if not self.session_factory: # Ne devrait plus arriver
             raise RuntimeError("Database not initialized.")
 
@@ -70,7 +70,7 @@ class AsyncDatabase:
         """Ferme proprement l'engine de base de données."""
         if self.engine:
             await self.engine.dispose()
-            # On ne met pas à None ici pour éviter de casser le singleton 
+            # On ne met pas à None ici pour éviter de casser le singleton
             # pendant la suite des tests. En prod, le processus meurt de toute façon.
 
 

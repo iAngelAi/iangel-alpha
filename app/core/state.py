@@ -7,14 +7,14 @@ Pour S2: Remplacer par Redis ou PostgreSQL.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Literal
 from dataclasses import dataclass, field
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Any, Literal
 
+from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.reasoning import ReasoningEngine, ReasoningState
 from app.models.database import Conversation, Message
@@ -176,7 +176,7 @@ class InMemoryStateStore(BaseStateStore):
         """Nettoie les sessions expirées (Memory Leak Prevention)."""
         now = datetime.now()
         keys_to_delete = [
-            k for k, v in self._store.items() 
+            k for k, v in self._store.items()
             if (now - v.last_updated).total_seconds() > ttl_seconds
         ]
         for k in keys_to_delete:

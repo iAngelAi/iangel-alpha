@@ -11,7 +11,7 @@ from .schemas import (
 )
 
 __all__ = [
-    "HealthResponse",
     "CaptureRequest",
     "CaptureResponse",
+    "HealthResponse",
 ]

@@ -4,15 +4,14 @@ Schémas Pydantic V2 pour l'API iAngel.
 Typage strict obligatoire - pas de dict brut ni de Any.
 """
 
-from datetime import datetime, timezone
-from typing import Literal, Optional
+from datetime import UTC, datetime
+from typing import Literal
 from uuid import uuid4
 
 # On importe les types émotifs pour cohérence
 EMOTIONAL_CONTEXTS = Literal["neutral", "reassuring", "celebratory", "firm", "protective"]
 
 from pydantic import BaseModel, Field
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Health Endpoint
@@ -25,7 +24,7 @@ class HealthResponse(BaseModel):
     status: Literal["healthy", "unhealthy", "degraded"]
     version: str
     environment: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     checks: dict[str, str] = Field(description="Statut détaillé par composant")
     user_message: str = Field(description="Message affichable à l'utilisateur (Ginette)")
     error_details: str | None = None

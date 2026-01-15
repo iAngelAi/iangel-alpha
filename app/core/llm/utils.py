@@ -8,8 +8,9 @@ Contient les fonctions pour:
 """
 
 from datetime import datetime
-from typing import List
+
 from app.core.state import DialogueMessage
+
 
 def get_temporal_context() -> str:
     """
@@ -18,7 +19,7 @@ def get_temporal_context() -> str:
     """
     now = datetime.now()
     formatted_date = now.strftime("%d %B %Y")
-    
+
     return f"""
 CONTEXTE TEMPOREL :
 - Nous sommes le : {formatted_date}.
@@ -26,7 +27,7 @@ CONTEXTE TEMPOREL :
 - RÈGLE D'HUMILITÉ : Si l'utilisateur mentionne une technologie (ex: iPhone 18, iOS 20) que tu ne connais pas, NE NIE PAS SON EXISTENCE. Pars du principe que l'utilisateur a raison et que tu es obsolète sur ce point. Guide-le par analogie avec les versions précédentes.
 """
 
-def format_history_for_claude(history: List[DialogueMessage], max_messages: int = 10) -> str:
+def format_history_for_claude(history: list[DialogueMessage], max_messages: int = 10) -> str:
     """
     Transforme l'historique en format structuré (XML-like) pour Claude.
     Limite aux N derniers messages pour économiser les tokens.
@@ -36,7 +37,7 @@ def format_history_for_claude(history: List[DialogueMessage], max_messages: int 
 
     # On garde les N derniers messages
     recent_history = history[-max_messages:]
-    
+
     formatted = ["<history>"]
     for msg in recent_history:
         # On ajoute le timestamp pour que Claude comprenne le temps qui passe
@@ -46,5 +47,5 @@ def format_history_for_claude(history: List[DialogueMessage], max_messages: int 
         formatted.append(f'    {msg.content}')
         formatted.append('  </message>')
     formatted.append("</history>")
-    
+
     return "\n".join(formatted)

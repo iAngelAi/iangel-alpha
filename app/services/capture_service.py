@@ -7,15 +7,21 @@ Orchestre le flux complet:
 3. Moteur de raisonnement (ReasoningEngine)
 """
 
-from app.models.schemas import CaptureRequest, CaptureResponse
-from app.config import get_settings, Settings
-from app.core.state import InMemoryStateStore, ConversationState, ReasoningEngine, BaseStateStore
-from app.core.llm.claude import ClaudeClient
+
+from app.config import Settings, get_settings
 from app.core.llm.base import LLMProvider
-from app.core.llm.prompts import SYSTEM_PROMPT_S1, SCHEMA_DEFINITION
-from app.core.llm.utils import get_temporal_context, format_history_for_claude
+from app.core.llm.claude import ClaudeClient
+from app.core.llm.prompts import SCHEMA_DEFINITION, SYSTEM_PROMPT_S1
+from app.core.llm.utils import format_history_for_claude, get_temporal_context
+from app.core.state import (
+    BaseStateStore,
+    ConversationState,
+    InMemoryStateStore,
+    ReasoningEngine,
+)
+from app.models.schemas import CaptureRequest, CaptureResponse
 from app.sandbox.mock_loader import MockLoader
-from pathlib import Path
+
 
 class CaptureService:
     """
@@ -23,13 +29,13 @@ class CaptureService:
     """
 
     def __init__(
-        self, 
+        self,
         state_store: BaseStateStore | None = None,
         llm_client: LLMProvider | None = None,
         settings: Settings | None = None
     ) -> None:
         self.settings = settings or get_settings()
-        
+
         # Injection ou valeurs par défaut
         self.state_store = state_store or InMemoryStateStore()
         # Note: Pour S1, on a besoin du vrai ClaudeClient (avec generate_decision)
@@ -43,13 +49,13 @@ class CaptureService:
         Traite une capture et génère une réponse empathique.
         """
         print(f"🔧 [DEBUG] Sandbox Mode: {self.settings.sandbox_mode}")
-        
+
         # 1. Gatekeeper P4 (Sandbox)
         if self.settings.sandbox_mode:
             mock = await self.mock_loader.load_for_scenario(request.mock_id)
             if not mock:
                 return self._create_fallback_response("Désolé, je ne trouve pas ce scénario de test.")
-            
+
             # Mapping S1 Mock -> CaptureResponse
             return CaptureResponse(
                 message=mock.expected_response,
@@ -66,29 +72,29 @@ class CaptureService:
         # 2. Gestion de l'état (State Management)
         conversation_id = request.conversation_id or "new_conv"
         state = await self.state_store.get_state(conversation_id)
-        
+
         if not state:
             engine = ReasoningEngine()
             state = ConversationState(conversation_id=conversation_id, engine=engine)
-        
+
         engine = state.engine
 
         # 3. Analyse (LLM S1 - Structured Output)
         user_msg = request.question or "Que dois-je faire ?"
-        
+
         # Ajouter l'entrée utilisateur à l'historique
         state.add_message("user", user_msg, modality=request.input_modality)
-        
+
         # Préparer le prompt dynamique (Contextuel & Temporel)
         temporal_context = get_temporal_context()
         history_xml = format_history_for_claude(state.history)
-        
+
         final_system_prompt = SYSTEM_PROMPT_S1.format(
             temporal_context=temporal_context,
             history=history_xml,
             json_schema=str(SCHEMA_DEFINITION)
         )
-        
+
         # Pour supporter l'injection de dépendance (MockLLMProvider n'a pas generate_decision),
         # on fait un check runtime. En prod, c'est ClaudeClient.
         # UPDATE S1: Le contrat est maintenant strict. generate_decision est OBLIGATOIRE.
@@ -101,12 +107,12 @@ class CaptureService:
         instruction = engine.process_decision(decision)
         spoken = decision.spoken_instruction
         confidence = 0.9 # Claude est confiant
-        
+
         # Ajouter la réponse IA à l'historique
         state.add_message(
-            "assistant", 
-            instruction, 
-            spoken=spoken, 
+            "assistant",
+            instruction,
+            spoken=spoken,
             emotion=decision.emotional_context
         )
 

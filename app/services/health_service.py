@@ -8,9 +8,10 @@ Responsabilité:
 - Formater le message pour Ginette
 """
 
-from app.core.probes import BaseProbe, ProbeResult
-from app.models.schemas import HealthResponse
 from app.config import get_settings
+from app.core.probes import BaseProbe
+from app.models.schemas import HealthResponse
+
 
 class HealthService:
     def __init__(self) -> None:
@@ -32,7 +33,7 @@ class HealthService:
                 # TODO: Ajouter timeout ici (asyncio.wait_for)
                 result = await probe.check()
                 checks[result.name] = result.status
-                
+
                 if result.status == "error":
                     global_status = "unhealthy"
                     errors.append(f"{result.name}: {result.error}")
