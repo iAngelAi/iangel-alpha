@@ -10,16 +10,17 @@ from anthropic import AsyncAnthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.config import get_settings
+from app.core.errors import RateLimitError, ServiceUnavailableError
 from app.core.llm.base import LLMProvider, LLMResponse
-from app.core.errors import TimeoutError, ServiceUnavailableError, RateLimitError
 from app.core.llm.schemas import PedagogicalDecision
+
 
 class ClaudeClient(LLMProvider):
     def __init__(self) -> None:
         settings = get_settings()
         if not settings.anthropic_api_key and not settings.sandbox_mode:
             print("⚠️ ATTENTION: Clé API Anthropic manquante!")
-        
+
         self.client = AsyncAnthropic(api_key=settings.anthropic_api_key)
         self.model = settings.anthropic_model
         print(f"🧠 [ClaudeClient] Modèle configuré: {self.model}")
@@ -73,12 +74,12 @@ class ClaudeClient(LLMProvider):
                 tools=[tool_definition],
                 tool_choice={"type": "tool", "name": "emit_decision"} # Force l'outil
             )
-            
+
             # Extraction du Tool Use
             for block in response.content:
                 if block.type == "tool_use" and block.name == "emit_decision":
                     return PedagogicalDecision(**block.input)
-            
+
             raise ValueError("Claude n'a pas utilisé l'outil de décision.")
 
         except Exception as e:
@@ -105,7 +106,7 @@ class ClaudeClient(LLMProvider):
         Supporte le texte et l'image (Vision).
         """
         messages = []
-        
+
         if image_data:
             messages.append({
                 "role": "user",
@@ -134,7 +135,7 @@ class ClaudeClient(LLMProvider):
                 system=system_prompt,
                 messages=messages, # type: ignore
             )
-            
+
             # Extraction propre du texte
             content_text = ""
             for block in response.content:

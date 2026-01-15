@@ -9,7 +9,6 @@ from typing import Any, Literal
 
 from fastapi import HTTPException, status
 
-
 # Mapping des messages empathiques par type d'erreur
 EMPATHIC_MESSAGES: dict[str, str] = {
     "validation_error": (

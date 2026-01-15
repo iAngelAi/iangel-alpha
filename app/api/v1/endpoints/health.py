@@ -8,11 +8,11 @@ La version est lue depuis config, jamais hardcodée.
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import get_db
+from app.core.probes import BaseProbe, ProbeResult
+from app.infrastructure.probes import DatabaseProbe
 from app.models.schemas import HealthResponse
 from app.services.health_service import HealthService
-from app.core.probes import BaseProbe, ProbeResult
-from app.core.database import get_db
-from app.infrastructure.probes import DatabaseProbe
 
 router = APIRouter()
 

@@ -11,6 +11,7 @@ TODO Phase S1: Implémenter avec:
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
+
 from app.core.llm.schemas import PedagogicalDecision
 
 

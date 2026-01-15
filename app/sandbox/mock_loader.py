@@ -39,20 +39,20 @@ class MockData(BaseModel):
 
     spoken_response: str | None = None
     """Version orale (correspond à 'spoken_instruction' en S1)"""
-    
+
     steps: list[str] = []
     """Liste ordonnée des étapes pour guider Ginette"""
 
     # === Champs S1 (Cognitive) ===
     thought_process: str | None = None
     """Raisonnement interne simulé"""
-    
+
     emotional_context: str = "neutral"
     """Ton émotionnel (neutral, reassuring, firm, celebratory)"""
-    
+
     suggested_actions: list[str] = ["C'est fait"]
     """Boutons d'action suggérés"""
-    
+
     is_completed: bool = False
     """Si le scénario est terminé à cette étape"""
 

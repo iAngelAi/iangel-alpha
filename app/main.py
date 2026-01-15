@@ -12,8 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
 from app.config import get_settings
+from app.core.database import Base, db_manager
 from app.core.middleware import create_request_id_middleware, setup_error_handlers
-from app.core.database import db_manager, Base
 
 
 @asynccontextmanager
