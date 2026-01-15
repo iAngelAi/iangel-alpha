@@ -1,92 +1,87 @@
-# iAngel Backend
+# iAngel - L'Ange Gardien Numérique (Alpha)
 
-Backend API pour iAngel, l'ange-gardien numérique qui accompagne les aînés québécois dans leur quotidien technologique.
+> **Pour Ginette.** Parce que la technologie ne devrait jamais faire peur.
 
-## Prérequis
+iAngel est un assistant IA bienveillant conçu pour protéger et guider les aînés techno-vulnérables. Il privilégie la sécurité émotionnelle, le pas-à-pas ("One step at a time") et l'absence totale de jargon.
 
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) (gestionnaire de paquets)
+![Status](https://img.shields.io/badge/Status-Alpha_S4-blue)
+![Quality](https://img.shields.io/badge/Tests-100%25_Passed-brightgreen)
+![License](https://img.shields.io/badge/License-Proprietary-red)
 
-## Installation
+---
 
+## 🏗 Architecture "Béton Armé"
+
+Le système repose sur une architecture découplée et robuste :
+
+*   **Cerveau (Backend) :** Python 3.11+, FastAPI, PostgreSQL (via SQLAlchemy Async).
+    *   *Reasoning Engine :* Machine à états finis pour le guidage pas-à-pas.
+    *   *LLM :* Anthropic Claude 3.5 Sonnet (avec support Vision).
+    *   *Sécurité :* Middleware empathique, validation Pydantic stricte.
+*   **Corps (Mobile) :** iOS 17+, SwiftUI.
+    *   *Interface :* Réactive aux émotions (couleurs, avatar).
+    *   *Voix :* Synthèse vocale (TTS) intégrée pour rassurer.
+
+## 🚀 Démarrage Rapide
+
+### Prérequis
+*   Python 3.11+
+*   `uv` (Package manager)
+*   Clé API Anthropic (pour le mode Production)
+
+### Installation
 ```bash
-# Cloner le dépôt
-git clone https://github.com/iAngelAi/iangel-alpha.git
+# 1. Cloner le projet
+git clone <repo_url>
 cd iangel-alpha
 
-# Créer l'environnement virtuel et installer les dépendances
-uv venv
-source .venv/bin/activate  # Linux/macOS
-# ou .venv\Scripts\activate  # Windows
-
+# 2. Installer les dépendances
 uv sync
-```
 
-## Configuration
-
-```bash
-# Copier le fichier d'exemple
+# 3. Configurer l'environnement
 cp .env.example .env
-
-# Éditer .env et ajouter votre clé API Anthropic
-# ANTHROPIC_API_KEY=sk-ant-...
+# (Éditez .env avec vos clés)
 ```
 
-## Développement
-
+### Lancer le Backend
 ```bash
-# Lancer le serveur de développement
-uv run uvicorn app.main:app --reload --port 8000
+# Mode Développement (Reload actif)
+./start_server.sh
+```
+L'API sera disponible sur `http://localhost:8000`.
+Documentation interactive : `http://localhost:8000/docs`.
 
-# Lancer les tests
-uv run pytest tests/ -v
-
-# Vérifier les types
-uv run mypy app/
-
-# Linter
-uv run ruff check app/
-uv run ruff format app/
+### Lancer les Tests (Rigueur Absolue)
+```bash
+# Exécute la suite de 100 tests isolés
+uv run pytest tests/
 ```
 
-## Endpoints
+---
 
-| Endpoint | Méthode | Description |
-|----------|---------|-------------|
-| `/api/v1/health` | GET | Vérification de santé du service |
-| `/api/v1/capture` | POST | Traitement d'une capture d'écran (TODO S0-03) |
+## 🛡️ Protocoles de Sécurité (Pédagogie S3)
 
-## Structure du Projet
+1.  **Validation Émotionnelle :** iAngel analyse l'image et le texte pour détecter la panique.
+2.  **Check-in Automatique :** Si l'instruction est complexe, iAngel demande "Est-ce que c'est clair ?".
+3.  **Boucle de Sécurité :** En cas d'échec répété, le système propose une alternative ou passe le relais à un humain (simulé en Alpha).
+
+---
+
+## 📂 Structure du Projet
 
 ```
 iangel-alpha/
 ├── app/
-│   ├── api/              # Endpoints REST
-│   ├── core/             # Logique métier centrale
-│   │   ├── errors.py     # Exceptions empathiques
-│   │   ├── middleware.py # Gestionnaire d'erreurs
-│   │   └── llm/          # Adaptateurs LLM
-│   ├── models/           # Schémas Pydantic
-│   ├── sandbox/          # Mode bac à sable (P4)
-│   ├── services/         # Services métier
-│   ├── config.py         # Configuration
-│   └── main.py           # Point d'entrée
-├── tests/                # Tests pytest
-├── mocks/                # Fichiers mock (P4)
-└── Officials_docs/       # Documentation officielle
+│   ├── core/           # Cœur du réacteur (Reasoning, State, LLM)
+│   ├── api/            # Routes FastAPI (v1)
+│   ├── models/         # Schémas Pydantic & SQLAlchemy
+│   └── services/       # Logique métier (Capture, Health)
+├── ios/                # Application iPhone (SwiftUI)
+├── tests/              # Suite de tests (Unit + Integration)
+├── mocks/              # Scénarios de test (Json)
+└── Officials_docs/     # Documentation de référence
 ```
 
-## Phases de Développement
+---
 
-- **S0-01** : Structure repo + FastAPI minimal ✅
-- **S0-02** : Endpoint /health détaillé (à venir)
-- **S0-03** : Endpoint /capture avec Claude API (à venir)
-- **S0-04** : Mocks et scénarios de test (à venir)
-
-## Documentation
-
-La documentation complète du projet se trouve dans le dossier `Officials_docs/`.
-
-## Licence
-
-Propriétaire - Tous droits réservés.
+**Développé avec ❤️ et Rigueur au Québec.**

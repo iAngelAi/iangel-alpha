@@ -6,33 +6,30 @@ La version est lue depuis config, jamais hardcodée.
 """
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ....models.schemas import HealthResponse
-from ....services.health_service import HealthService
-from ....core.probes import BaseProbe, ProbeResult
+from app.models.schemas import HealthResponse
+from app.services.health_service import HealthService
+from app.core.probes import BaseProbe, ProbeResult
+from app.core.database import get_db
+from app.infrastructure.probes import DatabaseProbe
 
 router = APIRouter()
 
 
-# --- Probes S0 (Mocks) ---
-# En S2, ces classes seront déplacées dans app/infrastructure/probes/
-
-class MockDatabaseProbe(BaseProbe):
-    async def check(self) -> ProbeResult:
-        # S0: On simule que la DB est "skip" ou "ok" (mock)
-        return ProbeResult(name="database", status="skip")
-
+# --- Probes Restants (Mocks) ---
 class MockLLMProbe(BaseProbe):
     async def check(self) -> ProbeResult:
         # S0: On ne ping pas vraiment Anthropic (coût)
         return ProbeResult(name="llm_api", status="skip")
 
 
-def get_health_service() -> HealthService:
+def get_health_service(db: AsyncSession = Depends(get_db)) -> HealthService:
     """Dependency Provider pour HealthService."""
     service = HealthService()
-    # En S0, on enregistre les mocks
-    service.register_probe(MockDatabaseProbe())
+    # Phase S2: Sonde réelle pour la DB
+    service.register_probe(DatabaseProbe(db))
+    # S1: Toujours mocké pour l'instant
     service.register_probe(MockLLMProbe())
     return service
 

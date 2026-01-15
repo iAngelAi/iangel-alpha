@@ -11,7 +11,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response, status
 from fastapi.responses import JSONResponse
 
-from .errors import EMPATHIC_MESSAGES
+from app.core.errors import EMPATHIC_MESSAGES
 
 
 async def empathic_exception_handler(
@@ -30,7 +30,7 @@ async def empathic_exception_handler(
     Returns:
         JSONResponse avec message empathique
     """
-    from ..config import get_settings
+    from app.config import get_settings
 
     settings = get_settings()
 
@@ -77,7 +77,7 @@ async def validation_exception_handler(
     Returns:
         JSONResponse avec message empathique
     """
-    from ..config import get_settings
+    from app.config import get_settings
 
     settings = get_settings()
 

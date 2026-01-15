@@ -3,7 +3,7 @@
     "scenario": "wifi_connection",
     "description": "Ginette veut se connecter au WiFi de sa maison",
     "expected_response": "Je vois l'icône WiFi en haut de votre écran. Elle montre que vous n'êtes pas encore connecté.",
-    "spoken_response": "Je vois que votre WiFi n'est pas branché. On va régler ça ensemble.",
+    "spoken_response": "Je vois que votre WiFi n'est pas branché. On va régler ça ensemble. Regardez en haut à droite.",
     "steps": [
         "Regardez le coin supérieur droit de votre écran",
         "Touchez l'icône avec les petites vagues (comme des ondes)",
@@ -11,5 +11,9 @@
         "Touchez le nom de votre réseau",
         "Entrez votre mot de passe WiFi",
         "Appuyez sur le bouton 'Connecter'"
-    ]
+    ],
+    "thought_process": "L'utilisateur est sur l'écran d'accueil. L'icône WiFi est grisée. Il faut d'abord attirer son attention sur cette zone.",
+    "emotional_context": "reassuring",
+    "suggested_actions": ["Je vois l'icône", "Je ne trouve pas"],
+    "is_completed": false
 }

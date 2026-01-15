@@ -3,11 +3,15 @@
     "scenario": "suspicious_email",
     "description": "Ginette a reçu un courriel bizarre et a peur de cliquer",
     "expected_response": "Ce courriel semble provenir d'une banque, mais l'adresse de l'expéditeur est étrange. Ne cliquez sur aucun lien.",
-    "spoken_response": "Attention Ginette, ce courriel me semble suspect. Ne touchez à rien, on va regarder ça de plus près.",
+    "spoken_response": "Attention Ginette, ce courriel me semble suspect. Ne touchez à rien pour l'instant, on va vérifier ça.",
     "steps": [
         "Ne cliquez sur aucun bouton dans le courriel",
         "Regardez l'adresse de l'expéditeur tout en haut",
         "Dites-moi si vous reconnaissez cette adresse précisément",
         "Nous allons supprimer ce courriel ensemble si c'est une fraude"
-    ]
+    ],
+    "thought_process": "Détection d'un potentiel phishing. Urgence : empêcher le clic. Ton : Ferme mais protecteur.",
+    "emotional_context": "firm",
+    "suggested_actions": ["J'ai compris", "J'ai déjà cliqué"],
+    "is_completed": false
 }

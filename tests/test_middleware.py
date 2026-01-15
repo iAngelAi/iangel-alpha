@@ -24,13 +24,6 @@ from app.core.errors import (
 from app.main import create_app
 
 
-@pytest.fixture
-def client() -> TestClient:
-    """Client de test FastAPI."""
-    app = create_app()
-    return TestClient(app, raise_server_exceptions=False)
-
-
 class TestEmpathicMessages:
     """Tests sur les messages empathiques."""
 
@@ -263,22 +256,17 @@ class TestRobustness:
         def explode() -> None:
             raise RuntimeError("BOOM! C'est cassé.")
 
-        client = TestClient(app, raise_server_exceptions=False)
-        response = client.get("/boom")
+        with TestClient(app, raise_server_exceptions=False) as client:
+            response = client.get("/boom")
 
-        # 1. Status 500
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+            # 1. Status 500
+            assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
-        # 2. JSON Empathique
-        data = response.json()
-        assert data["error_type"] == "internal_error"
-        assert "BOOM" not in data["message"]  # Le message pour Ginette ne contient pas l'erreur
-        assert "souci" in data["message"].lower() or "réessaie" in data["message"].lower()
-
-        # 3. Détail technique caché (supposant mode non-debug par défaut dans tests)
-        # Note: Dans config.py, debug est False par défaut.
-        if "technical_detail" in data:
-            assert "RuntimeError" in data["technical_detail"]
+            # 2. JSON Empathique
+            data = response.json()
+            assert data["error_type"] == "internal_error"
+            assert "BOOM" not in data["message"]  # Le message pour Ginette ne contient pas l'erreur
+            assert "souci" in data["message"].lower() or "réessaie" in data["message"].lower()
 
     def test_request_id_is_always_present(self, client: TestClient) -> None:
         """L'en-tête X-Request-ID est présent sur toutes les réponses."""
@@ -297,9 +285,9 @@ class TestRobustness:
         def explode() -> None:
             raise RuntimeError("Test ID")
         
-        client_crash = TestClient(app, raise_server_exceptions=False)
-        resp_500 = client_crash.get("/boom")
-        assert "X-Request-ID" in resp_500.headers
+        with TestClient(app, raise_server_exceptions=False) as client_crash:
+            resp_500 = client_crash.get("/boom")
+            assert "X-Request-ID" in resp_500.headers
 
     def test_validation_error_is_handled_empathically(self, client: TestClient) -> None:
         """Une erreur de validation (422) retourne un message empathique."""

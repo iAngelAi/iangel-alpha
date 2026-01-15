@@ -4,16 +4,12 @@ Tests de l'endpoint /capture et du service associé.
 Vérifie le flux complet de traitement d'une capture (Happy Path).
 """
 
-from fastapi.testclient import TestClient
 from fastapi import status
-
-from app.main import create_app
-
 
 class TestCaptureEndpoint:
     """Tests pour POST /api/v1/capture."""
 
-    def test_capture_happy_path(self) -> None:
+    def test_capture_happy_path(self, client) -> None:
         """
         Test du flux nominal (Happy Path).
         
@@ -22,9 +18,6 @@ class TestCaptureEndpoint:
         2. Le service est appelé (via l'intégration).
         3. La réponse est bien formatée (CaptureResponse).
         """
-        app = create_app()
-        client = TestClient(app)
-
         payload = {
             "device_id": "test_device_123",
             "image_data": "base64_fake_image_data",
@@ -56,11 +49,8 @@ class TestCaptureEndpoint:
         # Vérification des en-têtes (Robustesse)
         assert "X-Request-ID" in response.headers
 
-    def test_capture_voice_input_accepted(self) -> None:
+    def test_capture_voice_input_accepted(self, client) -> None:
         """Vérifie que l'API accepte une modalité 'voice'."""
-        app = create_app()
-        client = TestClient(app)
-
         payload = {
             "device_id": "dev123",
             "input_modality": "voice",

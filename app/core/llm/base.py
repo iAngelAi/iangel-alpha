@@ -11,6 +11,7 @@ TODO Phase S1: Implémenter avec:
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
+from app.core.llm.schemas import PedagogicalDecision
 
 
 class LLMResponse(BaseModel):
@@ -45,5 +46,15 @@ class LLMProvider(ABC):
         """
         ...
 
-
-# TODO Phase S1: Implémenter AnthropicProvider
+    @abstractmethod
+    async def generate_decision(
+        self,
+        system_prompt: str,
+        user_message: str,
+        image_data: str | None = None,
+    ) -> PedagogicalDecision:
+        """
+        Génère une décision pédagogique structurée (S1).
+        Obligatoire pour le Reasoning Engine.
+        """
+        ...

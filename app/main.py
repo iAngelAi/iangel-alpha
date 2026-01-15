@@ -10,9 +10,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.router import api_router
-from .config import get_settings
-from .core.middleware import create_request_id_middleware, setup_error_handlers
+from app.api.router import api_router
+from app.config import get_settings
+from app.core.middleware import create_request_id_middleware, setup_error_handlers
+from app.core.database import db_manager, Base
 
 
 @asynccontextmanager
@@ -21,11 +22,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Gère le cycle de vie de l'application.
 
     Startup:
-        - Initialisation des connexions (TODO Phase S2)
-        - Chargement des mocks (TODO Phase S0-04)
-
-    Shutdown:
-        - Fermeture propre des ressources
+        - Initialisation des connexions (Phase S2)
+        - Création des tables (Phase S2 - Alpha)
     """
     settings = get_settings()
 
@@ -33,13 +31,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if settings.debug:
         print(f"🚀 iAngel {settings.app_version} démarre en mode {settings.environment}")
 
-    # TODO Phase S0-04: Charger les mocks
-    # TODO Phase S2: Initialiser connexion DB
-    # TODO Phase S2: Vérifier connexion Anthropic
+    # Phase S2: Initialiser la DB avec les settings actuels
+    db_manager.initialize(settings)
+
+    # Phase S2: Créer les tables si elles n'existent pas
+    if db_manager.engine:
+        async with db_manager.engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            if settings.debug:
+                print("📁 Base de données initialisée (Tables créées)")
 
     yield
 
     # Shutdown
+    await db_manager.close()
     if settings.debug:
         print("👋 iAngel s'arrête proprement")
 

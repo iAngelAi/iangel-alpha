@@ -9,10 +9,10 @@ import anthropic
 from anthropic import AsyncAnthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from ...config import get_settings
-from .base import LLMProvider, LLMResponse
-from ..errors import TimeoutError, ServiceUnavailableError, RateLimitError
-from .schemas import PedagogicalDecision
+from app.config import get_settings
+from app.core.llm.base import LLMProvider, LLMResponse
+from app.core.errors import TimeoutError, ServiceUnavailableError, RateLimitError
+from app.core.llm.schemas import PedagogicalDecision
 
 class ClaudeClient(LLMProvider):
     def __init__(self) -> None:

@@ -12,13 +12,19 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pydantic import BaseModel
 
-from .reasoning import ReasoningEngine
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.reasoning import ReasoningEngine, ReasoningState
+from app.models.database import Conversation, Message
+
 
 class DialogueMessage(BaseModel):
     """Représente un échange unique dans la conversation."""
     role: Literal["user", "assistant", "system"]
     content: str
-    timestamp: datetime = field(default_factory=datetime.now)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
     # Pour le vocal ou des métadonnées techniques
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -28,7 +34,7 @@ class ConversationState:
     conversation_id: str
     engine: ReasoningEngine
     history: list[DialogueMessage] = field(default_factory=list)
-    last_updated: datetime = field(default_factory=datetime.now)
+    last_updated: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def add_message(self, role: Literal["user", "assistant", "system"], content: str, **metadata: Any) -> None:
@@ -38,7 +44,7 @@ class ConversationState:
             content=content,
             metadata=metadata
         ))
-        self.last_updated = datetime.now()
+        self.last_updated = datetime.utcnow()
 
 
 class BaseStateStore(ABC):
@@ -53,6 +59,95 @@ class BaseStateStore(ABC):
     async def save_state(self, conversation_id: str, state: ConversationState) -> None:
         """Sauvegarde l'état."""
         pass
+
+
+class PostgresStateStore(BaseStateStore):
+    """
+    Implémentation persistante via SQLAlchemy (Phase S2).
+    Compatible avec PostgreSQL (Railway) et SQLite (Local).
+    """
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def get_state(self, conversation_id: str) -> ConversationState | None:
+        """Récupère l'état depuis la DB et reconstruit l'objet ConversationState."""
+        stmt = (
+            select(Conversation)
+            .where(Conversation.conversation_id == conversation_id)
+            .options(selectinload(Conversation.messages))
+        )
+        result = await self.session.execute(stmt)
+        db_conv = result.scalar_one_or_none()
+
+        if not db_conv:
+            return None
+
+        # Reconstruire le moteur de raisonnement
+        engine = ReasoningEngine()
+        engine._state = ReasoningState(db_conv.reasoning_state)
+        engine._steps_completed = db_conv.steps_completed
+
+        # Reconstruire l'historique
+        history = [
+            DialogueMessage(
+                role=msg.role, # type: ignore
+                content=msg.content,
+                timestamp=msg.created_at,
+                metadata=msg.metadata_json
+            )
+            for msg in db_conv.messages
+        ]
+
+        return ConversationState(
+            conversation_id=db_conv.conversation_id,
+            engine=engine,
+            history=history,
+            last_updated=db_conv.last_updated
+        )
+
+    async def save_state(self, conversation_id: str, state: ConversationState) -> None:
+        """Sauvegarde ou met à jour l'état dans la DB."""
+        # Vérifier si elle existe déjà
+        stmt = (
+            select(Conversation)
+            .where(Conversation.conversation_id == conversation_id)
+            .options(selectinload(Conversation.messages))
+        )
+        result = await self.session.execute(stmt)
+        db_conv = result.scalar_one_or_none()
+
+        if not db_conv:
+            db_conv = Conversation(
+                conversation_id=conversation_id,
+                device_id=state.metadata.get("device_id", "unknown"),
+                reasoning_state=state.engine.state.value,
+                steps_completed=state.engine.steps_completed
+            )
+            self.session.add(db_conv)
+            await self.session.flush() # Pour avoir l'ID
+        else:
+            db_conv.reasoning_state = state.engine.state.value
+            db_conv.steps_completed = state.engine.steps_completed
+            db_conv.last_updated = datetime.utcnow()
+
+        # Synchroniser les nouveaux messages
+        # Note: Dans un environnement performant, on ajouterait seulement le dernier.
+        # Ici, on simplifie pour le skeleton S2.
+        current_msg_count = len(db_conv.messages)
+        new_messages = state.history[current_msg_count:]
+
+        for msg in new_messages:
+            db_msg = Message(
+                conversation_id=db_conv.id,
+                role=msg.role,
+                content=msg.content,
+                metadata_json=msg.metadata,
+                created_at=msg.timestamp
+            )
+            self.session.add(db_msg)
+
+        await self.session.commit()
 
 
 class InMemoryStateStore(BaseStateStore):

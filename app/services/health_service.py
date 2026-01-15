@@ -8,9 +8,9 @@ Responsabilité:
 - Formater le message pour Ginette
 """
 
-from ..core.probes import BaseProbe, ProbeResult
-from ..models.schemas import HealthResponse
-from ..config import get_settings
+from app.core.probes import BaseProbe, ProbeResult
+from app.models.schemas import HealthResponse
+from app.config import get_settings
 
 class HealthService:
     def __init__(self) -> None:

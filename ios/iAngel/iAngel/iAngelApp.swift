@@ -11,7 +11,7 @@ import SwiftUI
 struct iAngelApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CaptureView()
         }
     }
 }

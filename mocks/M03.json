@@ -1,13 +1,16 @@
 {
     "mock_id": "M03",
-    "scenario": "ios_update",
-    "description": "Une popup demande d'installer iOS 18. Ginette a peur de tout casser.",
-    "expected_response": "C'est une mise à jour de sécurité officielle d'Apple. C'est comme une mise au point pour votre voiture, c'est bon pour votre téléphone.",
-    "spoken_response": "C'est tout à fait normal Ginette. C'est Apple qui veut sécuriser ton téléphone. On peut le faire ce soir pendant que tu dors, ça ne te dérangera pas.",
+    "scenario": "security_panic",
+    "description": "Ginette voit un faux popup de virus et a peur de perdre ses photos.",
+    "expected_response": "Ne touchez à rien Ginette. C'est une fausse alerte, une publicité méchante. Votre téléphone va bien.",
+    "spoken_response": "Respirez Ginette. C'est un mensonge pour vous faire peur. Votre téléphone n'a rien. Posez le téléphone sur la table un instant.",
     "steps": [
-        "Lisez le titre de la fenêtre : 'Mise à jour logicielle'",
-        "Repérez l'option 'Installer ce soir' ou 'Plus tard'",
-        "Touchez 'Installer ce soir'",
-        "Branchez votre téléphone sur le chargeur avant d'aller au lit"
-    ]
+        "Ne touchez aucun bouton sur l'écran",
+        "Appuyez simplement sur le bouton principal (Home) pour revenir au calme",
+        "Fermez la fenêtre (Safari) sans la regarder"
+    ],
+    "thought_process": "DANGER: Utilisateur en état de panique (peur de virus). Priorité absolue: Stop action. Ne pas analyser le texte du virus, le traiter comme du bruit. Rassurer massivement.",
+    "emotional_context": "protective",
+    "suggested_actions": ["J'ai peur", "Je fais quoi ?"],
+    "is_completed": false
 }

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import AVFoundation
 
 /// Gère l'état et la logique de l'écran de capture pour Ginette
 class CaptureViewModel: ObservableObject {
@@ -10,6 +11,7 @@ class CaptureViewModel: ObservableObject {
     @Published var showSuccessCelebration: Bool = false
     
     private let apiClient: iAngelAPIClient
+    private let speechSynthesizer = AVSpeechSynthesizer()
     
     /// Initialisation avec injection du client API
     init(apiClient: iAngelAPIClient = iAngelAPIClient()) {
@@ -18,31 +20,35 @@ class CaptureViewModel: ObservableObject {
     
     /// Action principale : Envoyer une capture d'écran
     func processNewCapture(image: UIImage?, question: String? = nil, mockId: String = "M01") {
-        // Déclenchement du chargement
+        // Arrêter toute parole en cours si nouvelle action
+        speechSynthesizer.stopSpeaking(at: .immediate)
+        
         self.isLoading = true
         self.errorMessage = nil
         
         // Simulation d'encodage image (TODO réel: conversion base64)
-        let base64Image = "FAKE_BASE64_FOR_S0" 
+        let base64Image = "FAKE_BASE64_FOR_S4" 
         
         let request = CaptureRequest(
             deviceId: UIDevice.current.identifierForVendor?.uuidString ?? "unknown_device",
-            inputModality: .text, // Par défaut en texte pour S0
+            inputModality: .text,
             question: question,
-            conversationId: lastResponse?.conversationId, // Continuité de conversation
+            conversationId: lastResponse?.conversationId,
             mockId: mockId,
             imageData: base64Image
         )
         
-        // Appel asynchrone au Backend
         Task {
             do {
                 let response = try await apiClient.sendCapture(request: request)
                 
-                // Retour sur le thread principal pour mettre à jour l'UI
                 await MainActor.run {
                     self.lastResponse = response
                     self.isLoading = false
+                    
+                    // Déclenchement TTS (Voix iAngel)
+                    let textToSpeak = response.spokenMessage ?? response.message
+                    self.speak(textToSpeak)
                     
                     if response.isCompleted {
                         self.showSuccessCelebration = true
@@ -51,25 +57,41 @@ class CaptureViewModel: ObservableObject {
             } catch let error as iAngelError {
                 await MainActor.run {
                     self.isLoading = false
-                    // iAngelError contient déjà des messages empathiques du backend
                     switch error {
                     case .requestFailed(_, let message):
                         self.errorMessage = message
                     default:
                         self.errorMessage = "Oups! J'ai un petit souci technique. On réessaie?"
                     }
+                    if let err = self.errorMessage { self.speak(err) }
                 }
             } catch {
                 await MainActor.run {
                     self.isLoading = false
-                    self.errorMessage = "Une erreur imprévue est survenue. Vérifiez votre connexion."
+                    self.errorMessage = "Une erreur imprévue est survenue."
+                    self.speak(self.errorMessage!)
                 }
             }
         }
     }
     
-    /// Efface l'état pour une nouvelle question
+    /// Synthèse vocale apaisante pour Ginette
+    private func speak(_ text: String) {
+        let utterance = AVSpeechUtterance(string: text)
+        
+        // Configuration de la voix (Français - Canada si possible)
+        utterance.voice = AVSpeechSynthesisVoice(language: "fr-CA") ?? AVSpeechSynthesisVoice(language: "fr-FR")
+        
+        // Vitesse réduite pour meilleure compréhension (0.4 - 0.5)
+        utterance.rate = 0.45
+        utterance.pitchMultiplier = 1.0
+        utterance.volume = 1.0
+        
+        speechSynthesizer.speak(utterance)
+    }
+    
     func reset() {
+        speechSynthesizer.stopSpeaking(at: .immediate)
         self.lastResponse = nil
         self.errorMessage = nil
         self.showSuccessCelebration = false

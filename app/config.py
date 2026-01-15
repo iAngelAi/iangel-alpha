@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,7 +34,18 @@ class Settings(BaseSettings):
     allowed_hosts: str = "*"
 
     # === Database (Phase S2) ===
-    database_url: str = ""
+    database_url: str = Field(
+        default="sqlite+aiosqlite:///./test.db",
+        validation_alias="DATABASE_URL"
+    )
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def make_async_database_url(cls, v: str) -> str:
+        """Force l'usage du driver asynchrone (asyncpg) pour Postgres."""
+        if v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # === Anthropic (Phase S0-03) ===
     anthropic_api_key: str = ""
@@ -45,7 +57,7 @@ class Settings(BaseSettings):
     port: int = 8000
 
     # === Sandbox P4 ===
-    sandbox_mode: bool = True
+    sandbox_mode: bool = False # ACTIVATION CERVEAU RÉEL (S1)
     mocks_dir: Path = Path("mocks")
     default_mock_id: str = "M01"
 

@@ -33,11 +33,14 @@ def mock_llm_client():
         spoken_instruction="Click here",
         is_completed=False,
         emotional_context="neutral",
-        suggested_actions=[]
+        suggested_actions=["Ok"]
     )
     
     # Configure generate_decision (S1)
     client.generate_decision.return_value = decision
+    
+    # Configure generate (Legacy/Base)
+    client.generate.return_value = MagicMock(content="Legacy content")
     
     return client
 

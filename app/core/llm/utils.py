@@ -9,7 +9,7 @@ Contient les fonctions pour:
 
 from datetime import datetime
 from typing import List
-from ..state import DialogueMessage
+from app.core.state import DialogueMessage
 
 def get_temporal_context() -> str:
     """

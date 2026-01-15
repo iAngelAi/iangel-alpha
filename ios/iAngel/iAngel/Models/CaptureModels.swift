@@ -6,12 +6,13 @@ enum InputModality: String, Codable {
     case voice
 }
 
-/// Émotion détectée ou souhaitée pour la réponse
+/// Émotion détectée ou souhaitée pour la réponse (Synchronisé avec S3 Backend)
 enum EmotionalContext: String, Codable {
     case neutral
     case reassuring
     case celebratory
     case firm
+    case protective // Ajouté en S3 pour les scénarios de panique/sécurité
 }
 
 /// Requête envoyée au Backend iAngel
@@ -44,6 +45,7 @@ struct CaptureResponse: Codable {
     let suggestedActions: [String]
     let confidence: Double
     let mockUsed: String?
+    let emotionalContext: EmotionalContext // Ajouté en S4 pour l'adaptation UI
     let conversationId: String
 
     enum CodingKeys: String, CodingKey {
@@ -56,6 +58,13 @@ struct CaptureResponse: Codable {
         case suggestedActions = "suggested_actions"
         case confidence
         case mockUsed = "mock_used"
+        case emotionalContext = "emotional_context"
         case conversationId = "conversation_id"
+    }
+    
+    /// ✅ Propriété calculée : Tâche terminée si step == total
+    var isCompleted: Bool {
+        guard let total = totalSteps else { return false }
+        return stepNumber >= total
     }
 }

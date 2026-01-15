@@ -9,7 +9,7 @@ par trop d'informations à la fois.
 """
 
 from enum import Enum
-from .llm.schemas import PedagogicalDecision
+from app.core.llm.schemas import PedagogicalDecision
 
 
 class ReasoningState(str, Enum):
@@ -79,6 +79,14 @@ class ReasoningEngine:
 
         self._current_instruction = decision.current_instruction
         self._spoken_instruction = decision.spoken_instruction
+        
+        # S3: Check-in Pédagogique
+        # Si le contexte est émotionnellement chargé, on valide la compréhension oralement
+        if decision.emotional_context in ["protective", "reassuring"] and self._spoken_instruction:
+            check_in = " Est-ce que c'est clair pour vous ?"
+            if not self._spoken_instruction.endswith("?"):
+                self._spoken_instruction += check_in
+        
         self._state = ReasoningState.AWAITING_VALIDATION
         
         return decision.current_instruction

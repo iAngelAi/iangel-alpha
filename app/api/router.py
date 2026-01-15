@@ -6,7 +6,7 @@ Agrège tous les endpoints v1.
 
 from fastapi import APIRouter
 
-from .v1.endpoints import capture, health
+from app.api.v1.endpoints import capture, health
 
 api_router = APIRouter()
 

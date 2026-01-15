@@ -5,8 +5,11 @@ Typage strict obligatoire - pas de dict brut ni de Any.
 """
 
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Literal, Optional
 from uuid import uuid4
+
+# On importe les types émotifs pour cohérence
+EMOTIONAL_CONTEXTS = Literal["neutral", "reassuring", "celebratory", "firm", "protective"]
 
 from pydantic import BaseModel, Field
 
@@ -98,6 +101,10 @@ class CaptureResponse(BaseModel):
     mock_used: str | None = Field(
         default=None,
         description="Mock utilisé (debug/transparence)",
+    )
+    emotional_context: EMOTIONAL_CONTEXTS = Field(
+        default="neutral",
+        description="Ton émotionnel détecté (neutral, reassuring, celebratory, firm, protective)",
     )
     conversation_id: str = Field(
         default_factory=lambda: str(uuid4()),

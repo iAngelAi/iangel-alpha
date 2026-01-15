@@ -98,7 +98,7 @@ class EmpathicHTTPException(HTTPException):
     @staticmethod
     def _is_production() -> bool:
         """Vérifie si en production (cache le détail technique)."""
-        from ..config import get_settings
+        from app.config import get_settings
 
         return get_settings().is_production
 

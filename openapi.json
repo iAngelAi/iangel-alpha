@@ -1,0 +1,357 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "iAngel API",
+    "description": "API backend pour iAngel, l'ange-gardien num\u00e9rique qui accompagne les a\u00een\u00e9s qu\u00e9b\u00e9cois dans leur quotidien technologique.",
+    "version": "0.1.0-alpha"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health",
+          "Health"
+        ],
+        "summary": "V\u00e9rification de sant\u00e9 du service",
+        "description": "Retourne le statut du backend iAngel et de ses d\u00e9pendances.",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/capture": {
+      "post": {
+        "tags": [
+          "Capture",
+          "Capture"
+        ],
+        "summary": "Traiter une capture d'\u00e9cran",
+        "description": "Analyse une capture et retourne une guidance \u00e9tape par \u00e9tape.",
+        "operationId": "process_capture_api_v1_capture_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CaptureRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Device Id",
+            "description": "Identifiant unique du device"
+          },
+          "input_modality": {
+            "type": "string",
+            "enum": [
+              "text",
+              "voice"
+            ],
+            "title": "Input Modality",
+            "description": "Mode d'entr\u00e9e utilis\u00e9 par l'utilisateur",
+            "default": "text"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question",
+            "description": "Question de Ginette (optionnelle selon flux)"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id",
+            "description": "ID conversation pour contexte (flux continu)"
+          },
+          "mock_id": {
+            "type": "string",
+            "title": "Mock Id",
+            "description": "ID du sc\u00e9nario mock (Protocole P4)",
+            "default": "M01"
+          },
+          "image_data": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Data",
+            "description": "Image base64 - IGNOR\u00c9E en Alpha (Protocole P4)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id"
+        ],
+        "title": "CaptureRequest",
+        "description": "Requ\u00eate pour l'endpoint /capture."
+      },
+      "CaptureResponse": {
+        "properties": {
+          "response_id": {
+            "type": "string",
+            "title": "Response Id",
+            "description": "Identifiant unique de la r\u00e9ponse"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Message d'iAngel (texte affich\u00e9)"
+          },
+          "spoken_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spoken Message",
+            "description": "Message optimis\u00e9 pour la synth\u00e8se vocale (plus court/naturel)"
+          },
+          "step_number": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Step Number",
+            "default": 1
+          },
+          "total_steps": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Steps",
+            "description": "Nombre total d'\u00e9tapes (null si inconnu)"
+          },
+          "awaiting_validation": {
+            "type": "boolean",
+            "title": "Awaiting Validation",
+            "description": "Attend confirmation de Ginette avant \u00e9tape suivante",
+            "default": true
+          },
+          "suggested_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggested Actions",
+            "description": "Actions sugg\u00e9r\u00e9es"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Score de confiance",
+            "default": 0.8
+          },
+          "mock_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mock Used",
+            "description": "Mock utilis\u00e9 (debug/transparence)"
+          },
+          "emotional_context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emotional Context",
+            "description": "Contexte \u00e9motionnel pour l'avatar (neutral, reassuring, protective, happy)",
+            "default": "neutral"
+          },
+          "conversation_id": {
+            "type": "string",
+            "title": "Conversation Id",
+            "description": "ID conversation pour suivi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "CaptureResponse",
+        "description": "R\u00e9ponse de l'endpoint /capture."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "healthy",
+              "unhealthy",
+              "degraded"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Checks",
+            "description": "Statut d\u00e9taill\u00e9 par composant"
+          },
+          "user_message": {
+            "type": "string",
+            "title": "User Message",
+            "description": "Message affichable \u00e0 l'utilisateur (Ginette)"
+          },
+          "error_details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "environment",
+          "checks",
+          "user_message"
+        ],
+        "title": "HealthResponse",
+        "description": "R\u00e9ponse de l'endpoint /health."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

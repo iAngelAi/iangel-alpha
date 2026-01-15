@@ -7,14 +7,14 @@ Orchestre le flux complet:
 3. Moteur de raisonnement (ReasoningEngine)
 """
 
-from ..models.schemas import CaptureRequest, CaptureResponse
-from ..config import get_settings
-from ..core.state import InMemoryStateStore, ConversationState, ReasoningEngine, BaseStateStore
-from ..core.llm.claude import ClaudeClient
-from ..core.llm.base import LLMProvider
-from ..core.llm.prompts import SYSTEM_PROMPT_S1, SCHEMA_DEFINITION
-from ..core.llm.utils import get_temporal_context, format_history_for_claude
-from ..sandbox.mock_loader import MockLoader
+from app.models.schemas import CaptureRequest, CaptureResponse
+from app.config import get_settings, Settings
+from app.core.state import InMemoryStateStore, ConversationState, ReasoningEngine, BaseStateStore
+from app.core.llm.claude import ClaudeClient
+from app.core.llm.base import LLMProvider
+from app.core.llm.prompts import SYSTEM_PROMPT_S1, SCHEMA_DEFINITION
+from app.core.llm.utils import get_temporal_context, format_history_for_claude
+from app.sandbox.mock_loader import MockLoader
 from pathlib import Path
 
 class CaptureService:
@@ -25,9 +25,10 @@ class CaptureService:
     def __init__(
         self, 
         state_store: BaseStateStore | None = None,
-        llm_client: LLMProvider | None = None
+        llm_client: LLMProvider | None = None,
+        settings: Settings | None = None
     ) -> None:
-        self.settings = get_settings()
+        self.settings = settings or get_settings()
         
         # Injection ou valeurs par défaut
         self.state_store = state_store or InMemoryStateStore()
@@ -41,19 +42,25 @@ class CaptureService:
         """
         Traite une capture et génère une réponse empathique.
         """
+        print(f"🔧 [DEBUG] Sandbox Mode: {self.settings.sandbox_mode}")
+        
         # 1. Gatekeeper P4 (Sandbox)
         if self.settings.sandbox_mode:
             mock = await self.mock_loader.load_for_scenario(request.mock_id)
             if not mock:
                 return self._create_fallback_response("Désolé, je ne trouve pas ce scénario de test.")
             
+            # Mapping S1 Mock -> CaptureResponse
             return CaptureResponse(
                 message=mock.expected_response,
                 spoken_message=mock.spoken_response or mock.expected_response,
                 step_number=1,
                 mock_used=mock.mock_id,
                 confidence=1.0,
-                conversation_id=request.conversation_id or "sandbox_conv"
+                conversation_id=request.conversation_id or "sandbox_conv",
+                # Nouveaux champs S1
+                suggested_actions=mock.suggested_actions,
+                emotional_context=mock.emotional_context
             )
 
         # 2. Gestion de l'état (State Management)
@@ -84,36 +91,24 @@ class CaptureService:
         
         # Pour supporter l'injection de dépendance (MockLLMProvider n'a pas generate_decision),
         # on fait un check runtime. En prod, c'est ClaudeClient.
-        if hasattr(self.llm_client, "generate_decision"):
-            decision = await self.llm_client.generate_decision( # type: ignore
-                system_prompt=final_system_prompt,
-                user_message=user_msg,
-                image_data=request.image_data
-            )
-            # 4. Moteur de Raisonnement (P2 S1)
-            instruction = engine.process_decision(decision)
-            spoken = decision.spoken_instruction
-            confidence = 0.9 # Claude est confiant
-            
-            # Ajouter la réponse IA à l'historique
-            state.add_message(
-                "assistant", 
-                instruction, 
-                spoken=spoken, 
-                emotion=decision.emotional_context
-            )
-            
-        else:
-            # Fallback S0 (Texte simple) - Déprécié mais gardé pour compatibilité tests
-            llm_response = await self.llm_client.generate(
-                system_prompt="Tu es iAngel.",
-                user_message=user_msg,
-                image_data=request.image_data
-            )
-            instruction = engine.analyze(llm_response.content)
-            spoken = instruction
-            confidence = 0.5
-            state.add_message("assistant", instruction)
+        # UPDATE S1: Le contrat est maintenant strict. generate_decision est OBLIGATOIRE.
+        decision = await self.llm_client.generate_decision(
+            system_prompt=final_system_prompt,
+            user_message=user_msg,
+            image_data=request.image_data
+        )
+        # 4. Moteur de Raisonnement (P2 S1)
+        instruction = engine.process_decision(decision)
+        spoken = decision.spoken_instruction
+        confidence = 0.9 # Claude est confiant
+        
+        # Ajouter la réponse IA à l'historique
+        state.add_message(
+            "assistant", 
+            instruction, 
+            spoken=spoken, 
+            emotion=decision.emotional_context
+        )
 
         # 5. Sauvegarde
         await self.state_store.save_state(conversation_id, state)
@@ -125,7 +120,8 @@ class CaptureService:
             step_number=len(engine.steps_completed) + 1,
             conversation_id=conversation_id,
             confidence=confidence,
-            awaiting_validation=True
+            awaiting_validation=True,
+            emotional_context=decision.emotional_context
         )
 
     def _create_fallback_response(self, message: str) -> CaptureResponse:

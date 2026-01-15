@@ -3,7 +3,7 @@ import Foundation
 /// Réponse de santé du système
 struct HealthResponse: Codable {
     let status: String
-    let version: str
+    let version: String
     let environment: String
     let timestamp: String
     let checks: [String: String]

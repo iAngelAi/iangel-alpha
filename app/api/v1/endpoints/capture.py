@@ -8,19 +8,27 @@ TODO Phase S0-03: Implémenter l'endpoint complet avec :
 """
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ....models.schemas import CaptureRequest, CaptureResponse
-from ....services.capture_service import CaptureService
+from app.models.schemas import CaptureRequest, CaptureResponse
+from app.services.capture_service import CaptureService
+from app.config import get_settings, Settings
+from app.core.database import get_db
+from app.core.state import PostgresStateStore
 
 router = APIRouter()
 
 
-def get_capture_service() -> CaptureService:
+def get_capture_service(
+    settings: Settings = Depends(get_settings),
+    db: AsyncSession = Depends(get_db)
+) -> CaptureService:
     """
     Fournisseur de dépendance pour CaptureService.
-    Instancie le service avec ses dépendances par défaut (Prod).
+    Instancie le service avec PostgresStateStore pour la Phase S2.
     """
-    return CaptureService()
+    state_store = PostgresStateStore(db)
+    return CaptureService(settings=settings, state_store=state_store)
 
 
 @router.post(

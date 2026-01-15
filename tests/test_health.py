@@ -58,10 +58,10 @@ class TestHealthChecks:
         assert "llm_api" in checks
 
     def test_health_checks_are_skip_in_phase_s0(self, client: TestClient) -> None:
-        """En Phase S0, les checks sont en mode 'skip'."""
+        """En Phase S2, les checks sont actifs."""
         response = client.get("/api/v1/health")
         data = response.json()
         checks = data["checks"]
-        # Phase S0: pas encore de vraie DB ni de LLM
-        assert checks["database"] == "skip"
+        # Phase S2: la DB est vérifiée
+        assert checks["database"] == "ok"
         assert checks["llm_api"] == "skip"

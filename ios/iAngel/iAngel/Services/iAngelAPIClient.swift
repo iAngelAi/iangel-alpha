@@ -15,8 +15,15 @@ class iAngelAPIClient {
     private let session: URLSession
     
     /// Initialise le client avec l'URL de base (ex: Railway ou localhost)
-    init(baseURLString: String = "http://localhost:8000/api/v1", session: URLSession = .shared) {
-        self.baseURL = URL(string: baseURLString)!
+    init(baseURLString: String = "https://ton-app.railway.app/api/v1", session: URLSession = .shared) {
+        // ✅ P3 Lab Quality: Pas de Force Unwrap - Fallback sécurisé
+        guard let url = URL(string: baseURLString) else {
+            // URL de fallback en cas d'erreur de configuration
+            self.baseURL = URL(string: "http://localhost:8000/api/v1")!
+            self.session = session
+            return
+        }
+        self.baseURL = url
         self.session = session
     }
     
