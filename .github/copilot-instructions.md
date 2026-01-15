@@ -25,7 +25,10 @@
 
 ### 1. Initial Setup (Required Once)
 ```bash
-# Install uv if not available
+# Install uv if not available (official method)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# OR use pip as fallback
 pip install uv
 
 # Install all dependencies (takes ~60 seconds)
@@ -162,7 +165,7 @@ iangel-alpha/
 ## Common Issues & Workarounds
 
 ### Issue: uv not found
-**Solution**: Install via pip: `pip install uv`
+**Solution**: Install via official installer: `curl -LsSf https://astral.sh/uv/install.sh | sh` or fallback to pip: `pip install uv`
 
 ### Issue: Tests fail after fresh clone
 **Solution**: Run `uv sync` first to install dependencies
